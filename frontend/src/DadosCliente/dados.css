@@ -48,7 +48,6 @@ body {
   margin-top: 40px;
 }
 
-
 .Dados-grid {
   display: flex;
   justify-content: space-evenly;
@@ -174,6 +173,24 @@ li {
   background-color: #747070;
 }
 
+/* Link fixo para Política de Privacidade */
+.link-termos {
+  position: fixed;
+  bottom: 10px;
+  right: 15px;
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 16px;
+  color: #87cefa;
+  text-decoration: underline;
+  cursor: pointer;
+  z-index: 1000;
+  transition: color 0.3s ease;
+}
+
+.link-termos:hover {
+  color: #ffffff;
+}
+
 /* Responsividade para telas menores */
 @media (max-width: 768px) {
   .Web-header {
@@ -222,6 +239,13 @@ li {
 
   .modal-title {
     font-size: 16px;
+  }
+
+  /* 🔹 Ajuste do link em telas menores */
+  .link-termos {
+    font-size: 14px;
+    bottom: 8px;
+    right: 10px;
   }
 }
 
@@ -283,5 +307,12 @@ li {
   .reset-password-button {
     font-size: 14px;
     padding: 8px 16px;
+  }
+
+  /* 🔹 Ajuste do link em smartphones */
+  .link-termos {
+    font-size: 13px;
+    bottom: 6px;
+    right: 8px;
   }
 }

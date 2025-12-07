@@ -163,3 +163,29 @@
     }
   }
   
+  .checkbox-termos {
+  margin-top: 25px;
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 18px;
+  color: #fff;
+  text-align: left;
+  width: 450px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.checkbox-termos a {
+  color: #87cefa;
+  text-decoration: underline;
+}
+
+.checkbox-termos input {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+
+
+  

@@ -91,7 +91,7 @@ function Dados({ onLogout }) {
           className="Web-logotipo"
           alt="Dogvideo Logotipo"
         />
-               
+
         <button className="reset-password-button" onClick={handleResetPassword}>
           Redefinir Senha
         </button>
@@ -162,6 +162,16 @@ function Dados({ onLogout }) {
           </div>
         </div>
       </main>
+
+      {/* Link fixo para Política de Privacidade */}
+      <a
+        href={`${process.env.PUBLIC_URL}/termos-de-uso.html`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="link-termos"
+      >
+        Política de Privacidade
+      </a>
     </div>
   );
 }

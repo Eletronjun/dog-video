@@ -442,7 +442,7 @@ app.post('/login', (req, res) => {
 
 // Endpoint para alterar a senha
 app.post('/alterar-senha', async (req, res) => {
-  const { novaSenha, id_cliente } = req.body;
+  const { novaSenha, id_cliente, termo_aceito } = req.body;
 
   if (!id_cliente) {
     return res.status(400).json({ success: false, message: 'ID do cliente não fornecido' });
@@ -453,9 +453,15 @@ app.post('/alterar-senha', async (req, res) => {
     const hashedPassword = await bcrypt.hash(novaSenha, saltRounds);
 
     // Atualiza a senha do cliente no banco de dados
-    const query = 'UPDATE clientes SET senha = $1, alterar_senha = 0 WHERE id_cliente = $2';
+    const query = `
+      UPDATE clientes 
+      SET senha = $1, 
+          alterar_senha = 0,
+          termo_aceito = $2
+      WHERE id_cliente = $3
+    `;
 
-    pool.query(query, [hashedPassword, id_cliente], (err, result) => {
+    pool.query(query, [hashedPassword, termo_aceito === true, id_cliente], (err, result) => {
       if (err) {
         console.error('Erro ao atualizar senha:', err);
         return res.status(500).json({ success: false, message: 'Erro ao atualizar senha' });
@@ -472,6 +478,25 @@ app.post('/alterar-senha', async (req, res) => {
   } catch (error) {
     console.error('Erro ao criptografar senha:', error);
     res.status(500).json({ success: false, message: 'Erro ao processar senha' });
+  }
+});
+
+// Endpoint para registrar aceite da Política de Privacidade
+app.post('/aceitar-termo', async (req, res) => {
+  const { id_cliente } = req.body;
+
+  if (!id_cliente) {
+    return res.status(400).json({ success: false, message: 'ID do cliente não fornecido' });
+  }
+
+  try {
+    const query = 'UPDATE clientes SET termo_aceito = TRUE WHERE id_cliente = $1';
+    await pool.query(query, [id_cliente]);
+
+    res.json({ success: true, message: 'Política de Privacidade aceita com sucesso!' });
+  } catch (error) {
+    console.error('Erro ao registrar aceite da Política de Privacidade:', error);
+    res.status(500).json({ success: false, message: 'Erro ao registrar aceite da Política de Privacidade' });
   }
 });
 
@@ -493,10 +518,11 @@ app.get('/clientes/:id', (req, res) => {
   const clienteId = req.params.id;
 
   const queryCliente = `
-    SELECT nome, email, cpf, telefone, endereco, anotacoes, pacote, dias_teste
+    SELECT nome, email, cpf, telefone, endereco, anotacoes, pacote, dias_teste, alterar_senha, termo_aceito
     FROM clientes
     WHERE id_cliente = $1
   `;
+
 
   const queryCachorros = `
     SELECT nome
