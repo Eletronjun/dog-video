@@ -10,11 +10,18 @@ afterAll(async () => {
 // Mock data helpers
 const randomEmail = () => `test${Math.floor(Math.random() * 100000)}@mail.com`;
 
+const jwt = require('jsonwebtoken');
+
 describe('API Endpoints', () => {
   let createdClienteId;
   let createdPasseadorId;
   let createdSubscriptionId;
   let createdNotificationId;
+  let token;
+
+  beforeAll(() => {
+    token = jwt.sign({ id: 1, email: 'test@mail.com', tipo: 0 }, process.env.JWT_SECRET || 'your_secret_key', { expiresIn: '1h' });
+  });
 
   // Teste de criação de passeador (para obter um ID válido)
   it('POST /criarpasseador should create passeador', async () => {
@@ -100,7 +107,9 @@ describe('API Endpoints', () => {
   // Teste de redefinição de senha
   it('PUT /clientes/:id/reset-senha should reset senha', async () => {
     if (!createdClienteId) return;
-    const res = await request(app).put(`/clientes/${createdClienteId}/reset-senha`);
+    const res = await request(app)
+      .put(`/clientes/${createdClienteId}/reset-senha`)
+      .set('Authorization', `Bearer ${token}`);
     expect([200, 404]).toContain(res.statusCode);
   });
 
@@ -205,7 +214,10 @@ describe('API Endpoints', () => {
 
   // Teste de assinatura
   it('POST /subscribe should fail with missing body', async () => {
-    const res = await request(app).post('/subscribe').send({});
+    const res = await request(app)
+      .post('/subscribe')
+      .set('Authorization', `Bearer ${token}`)
+      .send({});
     expect([400, 500]).toContain(res.statusCode);
   });
 });
