@@ -1,5 +1,5 @@
 const express = require('express');
-const { Pool } = require('pg'); 
+
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
@@ -25,22 +25,8 @@ app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 
-// Conexão com o PostgreSQL (Neon)
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false 
-  }
-});
-
-// Teste de conexão (opcional)
-pool.query('SELECT NOW()', (err, res) => {
-  if (err) {
-    console.error('Erro ao conectar ao banco de dados:', err);
-  } else {
-    console.log('Conexão bem-sucedida com PostgreSQL. Hora atual:', res.rows[0].now);
-  }
-});
+// Conexão com o Banco de Dados
+const pool = require('./config/db');
 
 // Configuração das chaves VAPID
 webPush.setVapidDetails(
