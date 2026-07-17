@@ -17,7 +17,7 @@ function Passeadores() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:3001/passeadores');
+        const response = await fetch(`${process.env.REACT_APP_API_URL || `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}`}/`passeadores');
         const passeadoresData = await response.json();
 
         if (passeadoresData.success && Array.isArray(passeadoresData.passeadores)) {
@@ -49,7 +49,7 @@ function Passeadores() {
     if (!selectedPasseador) return;
 
     try {
-      const response = await fetch(`http://localhost:3001/passeadores/${selectedPasseador.id}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}`}/passeadores/${selectedPasseador.id}`, {
         method: 'DELETE',
       });
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import './chat.css';
 
-const socket = io('http://localhost:5000'); // Conecta ao servidor backend
+const socket = io(`${process.env.REACT_APP_CHAT_URL || 'http://localhost:5000'}`); // Conecta ao servidor backend
 
 function Chat({ userId, receiverId, onClose }) {
   const [messages, setMessages] = useState([]);

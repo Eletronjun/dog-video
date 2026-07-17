@@ -17,7 +17,7 @@ function Clientes() {
   const [filtroPacote, setFiltroPacote] = useState('');
 
   useEffect(() => {
-    axios.get('http://localhost:3001/clientes')
+    axios.get(`${process.env.REACT_APP_API_URL || `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}`}/`clientes')
       .then(response => {
         setClientes(response.data);
       })
@@ -60,7 +60,7 @@ function Clientes() {
 
   const handleDelete = async () => {
     try {
-      const response = await axios.delete(`http://localhost:3001/clientes/${selectedCliente.id_cliente}`);
+      const response = await axios.delete(`${process.env.REACT_APP_API_URL || `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}`}/clientes/${selectedCliente.id_cliente}`);
       if (response.data.success) {
         setClientes(clientes.filter(cliente => cliente.id_cliente !== selectedCliente.id_cliente));
         hideModal();

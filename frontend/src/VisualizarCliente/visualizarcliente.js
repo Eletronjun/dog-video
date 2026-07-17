@@ -14,7 +14,7 @@ function VisualizarCliente() {
   useEffect(() => {
     const fetchCliente = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/clientes/${id}`);
+        const response = await fetch(`${process.env.REACT_APP_API_URL || `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}`}/clientes/${id}`);
         const data = await response.json();
   
         if (data.success) {
@@ -39,7 +39,7 @@ function VisualizarCliente() {
           }
 
           // Busca o horário de passeio da tabela passeios
-          const passeioResponse = await fetch(`http://localhost:3001/passeios/${id}`);
+          const passeioResponse = await fetch(`${process.env.REACT_APP_API_URL || `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}`}/passeios/${id}`);
           const passeioData = await passeioResponse.json();
           if (passeioData.success) {
             setCliente((prevCliente) => ({

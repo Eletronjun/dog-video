@@ -4,7 +4,7 @@ import { FaEye, FaEyeSlash, FaExclamationCircle } from 'react-icons/fa';
 import './redefinir.css';
 
 function Redefinir() {
-  const { id } = useParams();
+  // const { id } = useParams();
   const navigate = useNavigate();
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -23,7 +23,7 @@ function Redefinir() {
 
     const fetchPasswordType = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/clientes/${id_cliente}`);
+        const response = await fetch(`${process.env.REACT_APP_API_URL || `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}`}/clientes/${id_cliente}`);
         if (!response.ok) throw new Error('Erro na resposta da API');
         
         const data = await response.json();
@@ -73,7 +73,7 @@ function Redefinir() {
       // Envia a nova senha e o aceite dos termos
       const id_cliente = localStorage.getItem('id_cliente');
 
-      const response = await fetch('http://localhost:3001/alterar-senha', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}`}/`alterar-senha', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

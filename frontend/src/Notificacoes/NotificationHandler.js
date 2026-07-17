@@ -18,7 +18,7 @@ function NotificationHandler() {
         });
         
         // Envia a inscrição para o backend, usando o id_cliente salvo no localStorage (se houver)
-        await fetch('http://localhost:3001/subscribe', {
+        await fetch(`${process.env.REACT_APP_API_URL || `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}`}/`subscribe', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

@@ -25,14 +25,14 @@ function Dados({ onLogout }) {
     // Busca os dados do cliente no backend
     const fetchDadosCliente = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/clientes/${id}`);
+        const response = await fetch(`${process.env.REACT_APP_API_URL || `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}`}/clientes/${id}`);
         const data = await response.json();
 
         if (data.success) {
           const cliente = data.cliente;
 
           // Busca o horário de passeio do cliente
-          const passeioResponse = await fetch(`http://localhost:3001/passeios/${id}`);
+          const passeioResponse = await fetch(`${process.env.REACT_APP_API_URL || `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}`}/passeios/${id}`);
           const passeioData = await passeioResponse.json();
 
           if (passeioData.success) {

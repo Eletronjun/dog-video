@@ -27,11 +27,11 @@ function Web({ onLogout }) {
       }
 
       try {
-        const response = await fetch(`http://localhost:3001/cachorros/${idCliente}/passeador`);
+        const response = await fetch(`${process.env.REACT_APP_API_URL || `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}`}/cachorros/${idCliente}/passeador`);
         const data = await response.json();
 
         if (data.success) {
-          const passeadorResponse = await fetch(`http://localhost:3001/passeadores/${data.id_passeador}`);
+          const passeadorResponse = await fetch(`${process.env.REACT_APP_API_URL || `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}`}/passeadores/${data.id_passeador}`);
           const passeadorData = await passeadorResponse.json();
 
           if (passeadorData.success) {
