@@ -3,7 +3,7 @@ const { Pool } = require('pg');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
-const port = 3001;
+const port = process.env.PORT || 3001;
 const webPush = require('web-push');
 const bcrypt = require('bcryptjs'); 
 const saltRounds = 10;
@@ -58,7 +58,8 @@ const authenticateAndExtractUser = (req, res, next) => {
     return res.status(401).json({ success: false, message: 'Token não fornecido' });
   }
 
-  jwt.verify(token, 'your_secret_key', (err, user) => {
+  const secret = process.env.JWT_SECRET || 'your_secret_key';
+  jwt.verify(token, secret, (err, user) => {
     if (err) {
       return res.status(403).json({ success: false, message: 'Token inválido' });
     }
@@ -422,7 +423,8 @@ app.post('/login', (req, res) => {
     const userType = cliente.tipo === 1 ? 'admin' : 'user';
 
     // Gera um token JWT para ser possível fazer a verificação de login nas rotas /admin, /clientes, /passeadores ....
-    const token = jwt.sign({ id: cliente.id_cliente, email: cliente.email, userType: userType }, 'your_secret_key', { expiresIn: '1h' });
+    const secret = process.env.JWT_SECRET || 'your_secret_key';
+    const token = jwt.sign({ id: cliente.id_cliente, email: cliente.email, userType: userType }, secret, { expiresIn: '1h' });
 
     // Salva a subscription no banco de dados, se fornecida e o cliente for do tipo 0
     if (subscription && cliente.tipo === 0) {
