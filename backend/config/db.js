@@ -20,9 +20,11 @@ const pool = new Pool({
 
 pool.query('SELECT NOW()', (err, res) => {
   if (err) {
-    console.error('Erro ao conectar ao banco de dados:', err);
+    console.error(`Erro ao conectar ao banco de dados no ambiente [${process.env.APP_ENV}]:`, err);
   } else {
-    console.log('Conexão bem-sucedida com PostgreSQL. Hora atual:', res.rows[0].now);
+    // Extrai apenas o host (ex: ep-delicate-night...) para logar sem expor a senha
+    const host = dbConnectionString ? new URL(dbConnectionString).hostname : 'desconhecido';
+    console.log(`✅ Conexão bem-sucedida! Ambiente: [${process.env.APP_ENV || 'padrão'}] | Banco: ${host}`);
   }
 });
 
