@@ -110,7 +110,7 @@ async function subscribeUser(idCliente = null, idPasseador = null) {
         'BBH2oyhNjmKPnyR140S375tVHFM1wuSd7GW7ijm90Ja7NB2eX67YQRbDLVyW_QrLqiDpbIy9QecaBDC_K1AWCro',
     });
 
-    await fetch(`${process.env.REACT_APP_API_URL || `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}`}/`subscribe', {
+    await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/subscribe`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

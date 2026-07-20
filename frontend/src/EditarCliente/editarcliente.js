@@ -119,7 +119,7 @@ function EditarCliente() {
     e.preventDefault(); 
   
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL || `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}`}/clientes/${id}/reset-senha`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/clientes/${id}/reset-senha`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -146,7 +146,7 @@ function EditarCliente() {
         setLoading(true);
 
         // Busca os dados do cliente
-        const clienteResponse = await fetch(`${process.env.REACT_APP_API_URL || `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}`}/clientes/${id}`);
+        const clienteResponse = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/clientes/${id}`);
         const clienteData = await clienteResponse.json();
 
         if (clienteData.success && clienteData.cliente) {
@@ -174,7 +174,7 @@ function EditarCliente() {
         }
 
         // Busca a lista de passeadores
-        const passeadoresResponse = await fetch(`${process.env.REACT_APP_API_URL || `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}`}/`passeadores');
+        const passeadoresResponse = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/passeadores`);
         const passeadoresData = await passeadoresResponse.json();
 
         if (passeadoresData.success && Array.isArray(passeadoresData.passeadores)) {
@@ -256,7 +256,7 @@ function EditarCliente() {
       console.log('Enviando dados para atualização:', updatedCliente);
 
       // Atualiza os dados do cliente
-      const response = await fetch(`${process.env.REACT_APP_API_URL || `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}`}/clientes/${id}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/clientes/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -275,7 +275,7 @@ function EditarCliente() {
       }
 
       // Atualiza o horário de passeio na tabela passeios
-      const passeioResponse = await fetch(`${process.env.REACT_APP_API_URL || `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}`}/passeios/${id}`, {
+      const passeioResponse = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/passeios/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

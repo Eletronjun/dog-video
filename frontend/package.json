@@ -9,15 +9,8 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.7.7",
     "babel-preset-react-app": "^10.0.1",
-    "bcryptjs": "^3.0.2",
-    "body-parser": "^1.20.3",
-    "cors": "^2.8.5",
     "css-select": "^5.1.0",
     "emoji-picker-react": "^4.12.0",
-    "express": "^4.21.1",
-    "multer": "^1.4.5-lts.1",
-    "mysql": "^2.18.1",
-    "mysql2": "^3.11.3",
     "nth-check": "^2.1.1",
     "postcss": "^8.5.3",
     "react": "^18.3.1",
@@ -35,10 +28,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "client": "cd src/Chat/client && npm run dev",
-    "server": "cd src/Chat/server && npm run dev",
-    "chat": "concurrently \"npm run client\" \"npm run server\" \"npm start\""
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
@@ -60,8 +50,6 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "@types/cors": "^2.8.17",
-    "concurrently": "^9.0.1",
     "serve": "^14.2.4",
     "webpack": "^5.95.0",
     "webpack-dev-server": "^5.1.0"

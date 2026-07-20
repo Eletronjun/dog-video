@@ -27,7 +27,7 @@ function EditarPasseador() {
   useEffect(() => {
     const fetchPasseador = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL || `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}`}/passeadores/${id}`);
+        const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/passeadores/${id}`);
         const data = await response.json();
         setPasseador(data.passeador);
         setSelectedImage(data.passeador.imagem);
@@ -150,7 +150,7 @@ function EditarPasseador() {
       };
 
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL || `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}`}/passeadores/${id}`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/passeadores/${id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

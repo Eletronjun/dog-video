@@ -46,7 +46,7 @@ function CriarCliente() {
   useEffect(() => {
     const fetchPasseadores = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL || `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}`}/`passeadores');
+        const response = await axios.get(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/passeadores`);
         if (response.data.success && Array.isArray(response.data.passeadores)) {
           setPasseadores(response.data.passeadores);
         } else {
@@ -213,7 +213,7 @@ function CriarCliente() {
   const temporario = pacote === 'Temporario' ? 1 : 0;
 
   try {
-    const response = await axios.post(`${process.env.REACT_APP_API_URL || `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}`}/`criarcliente', {
+    const response = await axios.post(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/criarcliente`, {
       nome,
       email,
       cpf,
@@ -233,7 +233,7 @@ function CriarCliente() {
       const id_cliente = response.data.id_cliente; // Captura o ID do cliente criado
       if (horario) {
         const horarioFormatado = `${horario}:00`; // Adiciona os segundos ao horário
-        await axios.post(`${process.env.REACT_APP_API_URL || `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}`}/`passeios', {
+        await axios.post(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/passeios`, {
           horario_passeio: horarioFormatado, // Envia apenas o horário no formato HH:mm:ss
           id_cliente,
           id_passeador,

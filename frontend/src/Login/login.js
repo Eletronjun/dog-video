@@ -48,7 +48,7 @@ function Login({ onLogin }) {
       // Obtém a subscription antes de enviar a requisição de login
       const subscription = await getSubscription();
 
-      const response = await fetch(`${process.env.REACT_APP_API_URL || `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}`}/`login', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: username, senha: password, subscription }),

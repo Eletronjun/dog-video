@@ -15,7 +15,7 @@ function VisualizarPasseador() {
   useEffect(() => {
     const fetchPasseador = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL || `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}`}/passeadores/${id}`);
+        const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/passeadores/${id}`);
         const data = await response.json();
 
         if (data.success) {
@@ -23,7 +23,7 @@ function VisualizarPasseador() {
           setClientes(data.clientes);
 
           // Busca os horários de passeio associados ao passeador
-          const horariosResponse = await fetch(`${process.env.REACT_APP_API_URL || `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}`}/passeadores/${id}/horarios`);
+          const horariosResponse = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/passeadores/${id}/horarios`);
           const horariosData = await horariosResponse.json();
           if (horariosData.success) {
             setHorariosPasseio(horariosData.horarios);

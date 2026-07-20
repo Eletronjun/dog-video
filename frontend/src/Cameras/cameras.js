@@ -46,7 +46,7 @@ function Cameras({ onLogout }) {
 
     const fetchHorario = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL || `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}`}/clientes/${id_cliente}`);
+        const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/clientes/${id_cliente}`);
         const data = await response.json();
         if (data.success && data.cliente && data.cliente.horario_passeio) {
           // Considerando que o horário está no formato "HH:MM:SS" e queremos "HH:MM"
