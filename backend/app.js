@@ -37,6 +37,8 @@ webPush.setVapidDetails(
 
 app.use('/', require('./routes/subscriptionRoutes'));
 app.use('/', require('./routes/passeadoresRoutes'));
+const errorHandler = require('./middleware/errorHandler');
+
 // Rotas de Autenticação
 app.use('/', require('./routes/authRoutes'));
 
@@ -45,6 +47,8 @@ app.use('/', require('./routes/clientesRoutes'));
 app.use('/', require('./routes/passeiosRoutes'));
 
 
+
+app.use(errorHandler);
 
 const startCronJobs = require('./jobs/cronJobs');
 
