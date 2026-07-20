@@ -1,57 +1,42 @@
-# -------------------------------
-# Stage 1: Build do frontend React
-# -------------------------------
+# Build do frontend React
 FROM node:18 AS frontend-build
-
-# Define o diretório de trabalho para o frontend
 WORKDIR /app/frontend
 
-# Copia os arquivos de dependências do frontend e instala as dependências
 COPY frontend/package*.json ./
 RUN npm install
 
-# Copia o restante do código-fonte do frontend e gera o build de produção
 COPY frontend/ ./
 RUN npm run build
 
-# -------------------------------
-# Stage 2: Build do backend Node.js
-# -------------------------------
+
+# Build do backend Node.js
 FROM node:18 AS backend-build
 
-# Define o diretório de trabalho para o backend
 WORKDIR /app/backend
 
-# Copia os arquivos de dependências do backend e instala apenas dependências de produção
 COPY backend/package*.json ./
 RUN npm install --production
 
-# Copia o restante do código-fonte do backend
 COPY backend/ ./
 
-# -------------------------------
-# Stage 3: Imagem final para produção
-# -------------------------------
+
+# Imagem final
 FROM node:18
 
 # Cria um usuário não-root para rodar a aplicação com mais segurança
 RUN useradd -m appuser
 
-# Define o diretório de trabalho padrão
 WORKDIR /app
 
 # Copia o backend já preparado do stage anterior
 COPY --from=backend-build /app/backend ./backend
-
-# Copia o build do frontend para a pasta apropriada (ajuste conforme seu backend serve os arquivos)
+# Copia o build do frontend para a pasta apropriada 
 COPY --from=frontend-build /app/frontend/build ./frontend/build
 
-# Troca para o usuário não-root
 USER appuser
 
-# Expõe as portas 3000 (frontend) e 3001 (backend)
 EXPOSE 3000
 EXPOSE 3001
 
-# Comando padrão: inicia backend e serve o frontend buildado em paralelo
+# Inicia backend e serve o frontend buildado em paralelo
 CMD ["npx", "concurrently", "npm --prefix backend start", "npx serve -s frontend/build -l 3000"]
