@@ -3,12 +3,12 @@ require('dotenv').config();
 
 let dbConnectionString = process.env.DATABASE_URL;
 
-if (process.env.APP_ENV === 'production') {
-  dbConnectionString = process.env.DATABASE_URL_PRODUCTION || dbConnectionString;
-} else if (process.env.APP_ENV === 'development') {
-  dbConnectionString = process.env.DATABASE_URL_DEVELOPMENT || dbConnectionString;
-} else if (process.env.APP_ENV === 'import') {
-  dbConnectionString = process.env.DATABASE_URL_IMPORT || dbConnectionString;
+if (process.env.APP_ENV === 'prod') {
+  dbConnectionString = process.env.DATABASE_URL_PROD || dbConnectionString;
+} else if (process.env.APP_ENV === 'dev') {
+  dbConnectionString = process.env.DATABASE_URL_DEV || dbConnectionString;
+} else if (process.env.APP_ENV === 'hom') {
+  dbConnectionString = process.env.DATABASE_URL_HOM || dbConnectionString;
 }
 
 const pool = new Pool({
