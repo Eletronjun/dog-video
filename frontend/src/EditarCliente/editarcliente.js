@@ -384,7 +384,6 @@ function EditarCliente() {
               onChange={handleInputChange}
             />
           </div>
-          
           <CustomSelect
             icon={<FaUserAlt />}
             placeholder="Selecione o Passeador"

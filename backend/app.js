@@ -52,6 +52,8 @@ app.use(errorHandler);
 
 const startCronJobs = require('./jobs/cronJobs');
 
+app.use('/', require('./routes/livesRoutes'));
+
 // Inicia o servidor apenas se o arquivo for executado diretamente
 if (require.main === module) {
   app.listen(port, () => {

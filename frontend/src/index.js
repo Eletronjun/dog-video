@@ -79,7 +79,7 @@ function App() {
           {/* Áreas acessíveis APENAS para clientes */}
           <Route path="/Web" element={<ProtectedRoute element={<Web onLogout={handleLogout} />} allowedRoles={['user']} />} />
           <Route path="/dados-cliente/:id" element={<ProtectedRoute element={<DadosCliente />} allowedRoles={['user']} />} />
-          <Route path="/cameras" element={<ProtectedRoute element={<Cameras onLogout={handleLogout} />} allowedRoles={['user']} />} />
+          <Route path="/cameras/passeador/:passeadorId" element={<ProtectedRoute element={<Cameras onLogout={handleLogout} />} allowedRoles={['user']} />} />
           <Route path="/redefinir/:id" element={<ProtectedRoute element={<RedefinirSenha />} allowedRoles={['user']} />} />
 
           {/* Áreas acessíveis APENAS para admins */}

@@ -55,9 +55,7 @@ function Web({ onLogout }) {
     if (idCliente) {
       navigate(`/dados-cliente/${idCliente}`);
     } else {
-      // Se não houver id_cliente salvo
       console.error('ID do cliente não encontrado no localStorage.');
-      // Opcional: redirecione para outra rota ou exiba uma mensagem
     }
   };  
 
@@ -103,10 +101,9 @@ function Web({ onLogout }) {
         <p className="passeador-texto-inicial">PASSEADOR</p>
       </div>
 
-      {/* Seção dos Passeadores */}
       <div className="passeadores">
         {passeadores.map((passeador) => (
-          <div className="passeador" key={passeador.id} onClick={() => navigate('/cameras')}>
+          <div className="passeador" key={passeador.id} onClick={() => navigate(`/cameras/passeador/${passeador.id}`)}>
             {passeador.imagem ? (
               <img src={passeador.imagem} alt={passeador.nome} className="passeador-foto" />
             ) : (

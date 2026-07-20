@@ -185,3 +185,27 @@ exports.getHorariosPasseador = async (req, res) => {
     res.status(500).json({ success: false, message: 'Erro ao buscar horários de passeio.' });
   }
 };
+
+exports.getPasseadoresByModulo = async (req, res) => {
+  const { modulo } = req.params;
+
+  if (isNaN(modulo)) {
+    return res.status(400).json({ success: false, message: 'ID do módulo inválido.' });
+  }
+
+  try {
+    const query = 'SELECT id_passeador, nome, email, imagem, telefone FROM passeadores WHERE modulo = $1';
+    const { rows } = await pool.query(query, [modulo]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Nenhum passeador encontrado para este módulo.' });
+    }
+
+    // Retorna a lista de todos os passeadores encontrados
+    res.json({ success: true, passeadores: rows });
+
+  } catch (err) {
+    console.error('Erro ao buscar passeadores por módulo:', err);
+    res.status(500).json({ success: false, message: 'Erro interno no servidor.' });
+  }
+};
