@@ -1,0 +1,42 @@
+# Build do frontend React
+FROM node:18 AS frontend-build
+WORKDIR /app/frontend
+
+COPY frontend/package*.json ./
+RUN npm install
+
+COPY frontend/ ./
+RUN npm run build
+
+
+# Build do backend Node.js
+FROM node:18 AS backend-build
+
+WORKDIR /app/backend
+
+COPY backend/package*.json ./
+RUN npm install --production
+
+COPY backend/ ./
+
+
+# Imagem final
+FROM node:18
+
+# Cria um usuário não-root para rodar a aplicação com mais segurança
+RUN useradd -m appuser
+
+WORKDIR /app
+
+# Copia o backend já preparado do stage anterior
+COPY --from=backend-build /app/backend ./backend
+# Copia o build do frontend para a pasta apropriada 
+COPY --from=frontend-build /app/frontend/build ./frontend/build
+
+USER appuser
+
+EXPOSE 3000
+EXPOSE 3001
+
+# Inicia backend e serve o frontend buildado em paralelo
+CMD ["npx", "concurrently", "npm --prefix backend start", "npx serve -s frontend/build -l 3000"]
