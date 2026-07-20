@@ -42,3 +42,26 @@ exports.updatePasseio = async (req, res) => {
     res.status(500).json({ success: false, message: 'Erro ao atualizar passeio.' });
   }
 };
+
+exports.getPasseio = async (req, res) => {
+  const { id_cliente } = req.params;
+
+  try {
+    const query = `
+      SELECT TO_CHAR(horario_passeio, 'HH24:MI') AS horario_passeio
+      FROM passeios
+      WHERE id_cliente = $1
+      LIMIT 1
+    `;
+    const result = await pool.query(query, [id_cliente]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Horário de passeio não encontrado para o cliente.' });
+    }
+
+    res.json({ success: true, horario_passeio: result.rows[0].horario_passeio });
+  } catch (error) {
+    console.error('Erro ao buscar horário de passeio:', error);
+    res.status(500).json({ success: false, message: 'Erro ao buscar horário de passeio.' });
+  }
+};
