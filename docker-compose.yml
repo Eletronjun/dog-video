@@ -3,6 +3,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.${APP_ENV}
+      args:
+        REACT_APP_API_URL: ${REACT_APP_API_URL}
+        REACT_APP_CHAT_URL: ${REACT_APP_CHAT_URL}
     env_file:
       - .env
     ports:
