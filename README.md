@@ -44,12 +44,18 @@ Na pasta raiz do projeto, copie o arquivo `.env` armazenado na documentação do
 
 Devido à conteinerização, o setup do projeto é bastante direto:
 1. Preencha os arquivos `.env` na raiz e no `frontend/` (caso necessário para APIs externas).
-2. Na raiz do projeto, execute:
+2. Opcional, mas recomendado: Utilize os comandos do `Makefile` para gerenciar o ciclo de vida.
+   - `make dev` (Sobe os containers e exibe os logs)
+   - `make test` (Roda os testes automatizados com Jest no backend)
+   - `make install-all` (Instala as dependências limpas em ambos os diretórios)
+   - `make shell` (Acessa o container principal)
+   - `make help` (Para ver a lista completa de comandos)
+3. Na raiz do projeto, você também pode executar manualmente:
    ```bash
    docker compose up --build
    ```
-3. O Backend iniciará na porta `3001`.
-4. O Frontend iniciará na porta `3000`.
+4. O Backend iniciará na porta `3001`.
+5. O Frontend iniciará na porta `3000`.
 
 ### 5. Procedimentos de Deploy em VPS
 
