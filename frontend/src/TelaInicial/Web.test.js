@@ -5,6 +5,9 @@ import Web from './Web';
 
 global.fetch = jest.fn();
 
+import Modal from 'react-modal';
+Modal.setAppElement(document.createElement('div'));
+
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
