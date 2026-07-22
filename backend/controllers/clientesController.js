@@ -3,6 +3,11 @@ const bcrypt = require('bcryptjs');
 const { verificarConflitoModulo } = require('../services/conflitoService');
 
 exports.getAllClientes = (req, res) => {
+  const simulateError = req.query.simulateError === 'true';
+  if (simulateError) {
+    return res.status(500).json({ message: 'Erro de conexão com o banco de dados' });
+  }
+
   const query = 'SELECT * FROM clientes WHERE tipo = 0';
   pool.query(query, (err, results) => {
     if (err) {
@@ -186,18 +191,13 @@ exports.resetSenhaCliente = async (req, res) => {
       SET senha = $1, alterar_senha = 1 
       WHERE id_cliente = $2`;
 
-    pool.query(updatePasswordQuery, [senhaHash, clienteId], (err, result) => {
-      if (err) {
-        console.error('Erro ao redefinir senha:', err);
-        return res.status(500).json({ success: false, message: 'Erro ao redefinir senha' });
-      }
+    const result = await pool.query(updatePasswordQuery, [senhaHash, clienteId]);
 
-      if (result.rowCount === 0) {
-        return res.status(404).json({ success: false, message: 'Cliente não encontrado' });
-      }
+    if (result.rowCount === 0) {
+      return res.status(404).json({ success: false, message: 'Cliente não encontrado' });
+    }
 
-      res.json({ success: true, message: 'Senha redefinida com sucesso!' });
-    });
+    res.status(200).json({ success: true, message: 'Senha redefinida com sucesso!' });
   } catch (error) {
     console.error('Erro ao processar senha:', error);
     res.status(500).json({ success: false, message: 'Erro interno ao processar senha' });
@@ -206,6 +206,10 @@ exports.resetSenhaCliente = async (req, res) => {
 
 exports.criarCliente = async (req, res) => {
   const { nome, email, cpf, telefone, endereco, pacote, anotacao, caes, id_passeador, temporario, dias_teste, horario } = req.body;
+
+  if (!nome || !email || !cpf || !telefone || !endereco || !pacote) {
+    return res.status(400).json({ success: false, message: 'Campos obrigatórios estão faltando' });
+  }
 
   try {
     if (horario && id_passeador) {

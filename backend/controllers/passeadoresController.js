@@ -3,6 +3,11 @@ const { verificarConflitoModuloPasseador } = require('../services/conflitoServic
 
 exports.getPasseadores = (req, res) => {
   const passeadorId = req.params.id; // ID opcional
+  const simulateError = req.query.simulateError === 'true'; // Simula erro de conexão
+
+  if (simulateError) {
+    return res.status(500).json({ message: 'Erro de conexão com o banco de dados' });
+  }
 
   if (passeadorId) {
     const queryPasseador = `
@@ -96,6 +101,10 @@ exports.atualizarPasseador = async (req, res) => {
 exports.criarPasseador = (req, res) => {
   const { nome, email, cpf, telefone, endereco, imagem, modulo, modulo2 } = req.body;
 
+  if (!nome || !email || !cpf || !telefone || !endereco || modulo == null || modulo2 == null) {
+    return res.status(400).json({ success: false, message: 'Campos obrigatórios estão faltando' });
+  }
+
   const imagemBlob = imagem ? Buffer.from(imagem.replace(/^data:image\/\w+;base64,/, ""), 'base64') : null;
 
   const query = `
@@ -110,7 +119,7 @@ exports.criarPasseador = (req, res) => {
       return res.status(500).json({ success: false, message: 'Erro ao criar passeador' });
     }
     const novoPasseadorId = result.rows[0].id_passeador;
-    res.json({ success: true, message: 'Passeador criado com sucesso!', id_passeador: novoPasseadorId });
+    res.status(201).json({ success: true, message: 'Passeador criado com sucesso!', id_passeador: novoPasseadorId });
   });
 };
 
