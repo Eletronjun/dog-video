@@ -72,14 +72,27 @@ docker compose -f docker-compose.prod.yml up -d --build
 
 > Para mais detalhes, verifique os detalhes na documentação que consta no Drive do projeto.
 
-### 6. Estrutura de Rotas e Endpoints
+### 6. Integração Contínua (CI/CD) e SonarCloud
+
+Este repositório está configurado para realizar análise estática de código automatizada (Code Smells, Vulnerabilidades e Cobertura de Testes) a cada commit nas branches `main` e `dev` usando o **SonarCloud** integrado ao **GitHub Actions**.
+
+#### Como Configurar o SonarCloud no seu GitHub:
+1. Acesse [sonarcloud.io](https://sonarcloud.io) e faça login com a conta do GitHub (da Empresa Júnior ou sua).
+2. Vá em **My Projects > Analyze new project** e selecione o repositório `dog-video`.
+3. Na tela de configuração, o SonarCloud irá gerar um token secreto (ex: `1a2b3c4d5e...`).
+4. Volte para o repositório no GitHub, vá em **Settings > Secrets and variables > Actions**.
+5. Clique em **New repository secret**.
+6. Crie uma variável com o nome `SONAR_TOKEN` e cole o valor gerado.
+7. O GitHub Actions (`.github/workflows/sonar.yml`) utilizará essa chave automaticamente e enviará os relatórios do Jest (`backend/coverage/lcov.info`) direto para o dashboard do Sonar!
+
+### 7. Estrutura de Rotas e Endpoints
 
 A API do backend está isolada na pasta `backend/routes/`. As principais rotas incluem:
 - `/login`: Retorna o Token JWT. Se for o primeiro acesso, retorna flag indicando a necessidade de alteração de senha.
 - `/clientes`: CRUD completo de clientes (Protegido via JWT).
 - `/passeadores`: CRUD de passeadores e atualização de status de bateria/localização (se ativado).
 
-## 7. Relatório de Requisitos
+## 8. Relatório de Requisitos
 
 Este relatório analisa a conclusão dos requisitos funcionais (RF) e não-funcionais (NF) listados na documentação original, comparando-os com o código-fonte atual do projeto.
 
