@@ -73,7 +73,7 @@ A API do backend está isolada na pasta `backend/routes/`. As principais rotas i
 - `/clientes`: CRUD completo de clientes (Protegido via JWT).
 - `/passeadores`: CRUD de passeadores e atualização de status de bateria/localização (se ativado).
 
-## 7. Auditoria de Requisitos
+## 7. Relatório de Requisitos
 
 Este relatório analisa a conclusão dos requisitos funcionais (RF) e não-funcionais (NF) listados na documentação original, comparando-os com o código-fonte atual do projeto.
 
