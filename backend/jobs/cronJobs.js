@@ -65,45 +65,47 @@ const startCronJobs = () => {
   });
 
   // Cron job para excluir clientes temporários com base no dias_teste
-  cron.schedule('0 2 * * *', async () => {
-    const timestamp = new Date().toISOString();
-    console.log(`[${timestamp}] Processando exclusão de clientes temporários...`);
-
-    const client = await pool.connect();
-    
-    try {
-      await client.query('BEGIN'); // Inicia transação
-
-      // 1. Obter IDs dos clientes a serem excluídos
-      const { rows } = await client.query(`
-        SELECT id_cliente FROM clientes
-        WHERE temporario = 1
-        AND dias_teste IS NOT NULL
-        AND NOW() >= criado_em + (dias_teste * INTERVAL '1 day')
-      `);
-
-      // 2. Para cada cliente, excluir registros dependentes
-      for (const { id_cliente } of rows) {
-        await client.query('DELETE FROM subscriptions WHERE id_cliente = $1', [id_cliente]);
-        await client.query('DELETE FROM cachorros WHERE id_cliente = $1', [id_cliente]);
-      }
-
-      // 3. Finalmente excluir os clientes
-      const deleteResult = await client.query(`
-        DELETE FROM clientes
-        WHERE id_cliente = ANY($1)
-      `, [rows.map(r => r.id_cliente)]);
-
-      await client.query('COMMIT'); // Confirma transação
-      console.log(`[${timestamp}] ${deleteResult.rowCount} clientes excluídos com sucesso.`);
-
-    } catch (err) {
-      await client.query('ROLLBACK'); // Reverte em caso de erro
-      console.error(`[${timestamp}] Erro na exclusão:`, err);
-    } finally {
-      client.release(); // Libera o cliente de conexão
-    }
-  });
+  cron.schedule('0 2 * * *', deleteTemporaryClients);
 };
 
-module.exports = startCronJobs;
+const deleteTemporaryClients = async () => {
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] Processando exclusão de clientes temporários...`);
+
+  const client = await pool.connect();
+  
+  try {
+    await client.query('BEGIN'); // Inicia transação
+
+    // 1. Obter IDs dos clientes a serem excluídos
+    const { rows } = await client.query(`
+      SELECT id_cliente FROM clientes
+      WHERE temporario = 1
+      AND dias_teste IS NOT NULL
+      AND NOW() >= criado_em + (dias_teste * INTERVAL '1 day')
+    `);
+
+    // 2. Para cada cliente, excluir registros dependentes
+    for (const { id_cliente } of rows) {
+      await client.query('DELETE FROM subscriptions WHERE id_cliente = $1', [id_cliente]);
+      await client.query('DELETE FROM cachorros WHERE id_cliente = $1', [id_cliente]);
+    }
+
+    // 3. Finalmente excluir os clientes
+    const deleteResult = await client.query(`
+      DELETE FROM clientes
+      WHERE id_cliente = ANY($1)
+    `, [rows.map(r => r.id_cliente)]);
+
+    await client.query('COMMIT'); // Confirma transação
+    console.log(`[${timestamp}] ${deleteResult.rowCount} clientes excluídos com sucesso.`);
+
+  } catch (err) {
+    await client.query('ROLLBACK'); // Reverte em caso de erro
+    console.error(`[${timestamp}] Erro na exclusão:`, err);
+  } finally {
+    client.release(); // Libera o cliente de conexão
+  }
+};
+
+module.exports = { startCronJobs, deleteTemporaryClients };

@@ -50,7 +50,7 @@ app.use('/', require('./routes/passeiosRoutes'));
 
 app.use(errorHandler);
 
-const startCronJobs = require('./jobs/cronJobs');
+const { startCronJobs, deleteTemporaryClients } = require('./jobs/cronJobs');
 
 app.use('/', require('./routes/livesRoutes'));
 
@@ -62,5 +62,5 @@ if (require.main === module) {
   });
 }
 
-// Exporta o app e o pool de conexões
-module.exports = { app, pool };
+// Exporta o app, o pool de conexões e a função do cron job
+module.exports = { app, pool, deleteTemporaryClients };
