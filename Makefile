@@ -94,6 +94,17 @@ test-coverage: ## Roda os testes com relatorio de cobertura
 	@docker exec -it $(CONTAINER_APP) sh -c "cd $(BACKEND_PATH) && npm test -- --coverage --watchAll=false" || true
 	@echo "$(GREEN)Relatorio de cobertura gerado em backend/coverage$(RESET)"
 
+test-frontend: ## Roda os testes do frontend dentro do container
+	@echo "$(YELLOW)Rodando testes do frontend...$(RESET)"
+	docker exec -it $(CONTAINER_APP) sh -c "cd $(FRONTEND_PATH) && npm test -- --watchAll=false"
+
+test-frontend-coverage: ## Roda os testes do frontend com relatorio de cobertura
+	@echo "$(YELLOW)Gerando relatorio de cobertura do frontend...$(RESET)"
+	@mkdir -p frontend/coverage
+	@chmod 777 frontend/coverage
+	@docker exec -it $(CONTAINER_APP) sh -c "cd $(FRONTEND_PATH) && npm test -- --coverage --watchAll=false" || true
+	@echo "$(GREEN)Relatorio de cobertura gerado em frontend/coverage$(RESET)"
+
 ##@ Acesso aos Containers
 
 shell: ## Acessa o shell do container principal

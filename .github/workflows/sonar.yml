@@ -41,16 +41,21 @@ jobs:
         working-directory: ./backend
         run: npm install
 
-      - name: Run tests with coverage
+      - name: Run backend tests with coverage
         working-directory: ./backend
         env:
-          # Para testes no CI local do actions, usamos mock ou passamos as variáveis de env
           JWT_SECRET: testing_secret
-          # Como os testes de Jest precisam de banco de dados, eles idealmente rodam 
-          # conectados ao banco efêmero gerado acima, ou as variaveis correspondentes.
-          # Se houver mock, basta rodar. 
         run: npm test -- --coverage --watchAll=false
-        continue-on-error: true # Permite que o Sonar rode mesmo se falhar (se desejado)
+        continue-on-error: true
+
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm install
+
+      - name: Run frontend tests with coverage
+        working-directory: ./frontend
+        run: npm test -- --coverage --watchAll=false
+        continue-on-error: true
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
