@@ -358,8 +358,12 @@ function CriarCliente() {
                   placeholder="Dias"
                   className="form-input"
                   min="1"
+                  max="99" // Define o máximo como 99
                   value={diasTeste}
-                  onChange={(e) => setDiasTeste(e.target.value)}
+                  onChange={(e) => {
+                    const value = Math.min(99, Math.max(1, parseInt(e.target.value) || 1)); // Limita entre 1 e 99
+                    setDiasTeste(value);
+                  }}
                 />
               </div>
             )}

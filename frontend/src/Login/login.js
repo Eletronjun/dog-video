@@ -57,6 +57,7 @@ function Login({ onLogin }) {
       const data = await response.json();
 
       if (data.success) {
+        localStorage.setItem('token', data.token); // Armazena o token no localStorage
         setError('');
         // Chama a função onLogin e passa userType e id_cliente
         onLogin(data.userType, data.id_cliente);

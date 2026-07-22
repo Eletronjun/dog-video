@@ -115,14 +115,21 @@ function EditarCliente() {
     return horario;
   };
 
-  const handleResetPassword = async (e) => {
+  const handleResetSenha = async (e) => {
     e.preventDefault(); 
   
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/clientes/${id}/reset-senha`, {
+      const token = localStorage.getItem('token'); // Certifique-se de que o token está armazenado
+      if (!token) {
+        alert('Usuário não autenticado. Faça login novamente.');
+        return;
+      }
+
+      const response = await fetch(`http://localhost:3001/clientes/${id}/reset-senha`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // Envia o token no cabeçalho
         },
       });
   
@@ -132,7 +139,7 @@ function EditarCliente() {
         alert('Senha redefinida com sucesso!');
       } else {
         console.error('Erro ao resetar senha:', data.message);
-        alert('Erro ao resetar senha.');
+        alert(data.message || 'Erro ao resetar senha.');
       }
     } catch (error) {
       console.error('Erro ao processar reset de senha:', error);
@@ -408,8 +415,12 @@ function EditarCliente() {
                   placeholder="Dias de teste"
                   className="form-input"
                   min="1"
+                  max="99" // Define o máximo como 99
                   value={cliente.dias_teste}
-                  onChange={handleInputChange}
+                  onChange={(e) => {
+                    const value = Math.min(99, Math.max(1, parseInt(e.target.value) || 1)); // Limita entre 1 e 99
+                    setCliente((prev) => ({ ...prev, dias_teste: value }));
+                  }}
                 />
               </div>
             )}

@@ -21,17 +21,22 @@ function VisualizarCliente() {
           setCliente(data.cliente);
           
           if (data.cliente.pacote === 'Temporario' && data.cliente.dias_teste) {
-            // Usa criado_em como data de início do teste
-            const dataInicio = new Date(data.cliente.criado_em);
-            const dataTermino = new Date(dataInicio);
-            dataTermino.setDate(dataInicio.getDate() + data.cliente.dias_teste);
-            
-            const hoje = new Date();
-            const diffTime = dataTermino - hoje;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
-            setDiasRestantes(diffDays > 0 ? diffDays : 0);
-            setDataTermino(dataTermino.toLocaleDateString('pt-BR')); // Formato brasileiro
+            const dataInicio = new Date(data.cliente.criado_em); // Data de início do teste
+            if (!isNaN(dataInicio.getTime())) { // Verifica se a data é válida
+              const dataTermino = new Date(dataInicio);
+              dataTermino.setDate(dataInicio.getDate() + parseInt(data.cliente.dias_teste, 10)); // Adiciona os dias de teste
+
+              const hoje = new Date();
+              const diffTime = dataTermino.getTime() - hoje.getTime(); // Diferença em milissegundos
+              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Converte para dias
+
+              setDiasRestantes(diffDays > 0 ? diffDays : 0); // Define dias restantes (0 se já expirou)
+              setDataTermino(dataTermino.toLocaleDateString('pt-BR')); // Formata a data de término
+            } else {
+              console.error('Data inválida em criado_em:', data.cliente.criado_em);
+              setDiasRestantes(0);
+              setDataTermino('Data inválida');
+            }
           }
 
           if (data.cliente.id_passeador) {
