@@ -115,7 +115,7 @@ function EditarCliente() {
     return horario;
   };
 
-  const handleResetSenha = async (e) => {
+  const handleResetPassword = async (e) => {
     e.preventDefault(); 
   
     try {
