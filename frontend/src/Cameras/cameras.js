@@ -23,7 +23,7 @@ function Cameras({ onLogout }) {
   const [isChatVisible, setIsChatVisible] = useState(false);
 
   useEffect(() => {
-    if (!passeadorId) {
+    if (!passeadorId || passeadorId === 'undefined' || passeadorId === 'null') {
       setLoading(false);
       setError("ID do passeador não fornecido na URL.");
       return;
