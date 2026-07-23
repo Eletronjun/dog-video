@@ -66,6 +66,13 @@ function App() {
     });
   }, []);
 
+  const renderHomeRoute = () => {
+    if (!isLoggedIn) {
+      return <Login onLogin={handleLogin} />;
+    }
+    return userRole === 'admin' ? <Admin onLogout={handleLogout} /> : <Web onLogout={handleLogout} />;
+  };
+
   return (
     <React.StrictMode>
       <Router>
@@ -73,7 +80,7 @@ function App() {
           {/* Página inicial - Decide se exibe Web ou Admin dependendo do usuário */}
           <Route 
             path="/" 
-            element={isLoggedIn ? (userRole === 'admin' ? <Admin onLogout={handleLogout} /> : <Web onLogout={handleLogout} />) : <Login onLogin={handleLogin} />}
+            element={renderHomeRoute()}
           />
 
           {/* Áreas acessíveis APENAS para clientes */}
