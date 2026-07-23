@@ -10,6 +10,10 @@ exports.getPasseadores = (req, res) => {
   }
 
   if (passeadorId) {
+    if (passeadorId === 'undefined' || Number.isNaN(Number(passeadorId))) {
+      return res.status(400).json({ success: false, message: 'ID do passeador inválido' });
+    }
+
     const queryPasseador = `
       SELECT id_passeador, id_passeador AS id, nome, email, imagem, cpf, telefone, endereco, modulo, modulo2 
       FROM passeadores 
@@ -32,6 +36,7 @@ exports.getPasseadores = (req, res) => {
       }
 
       const passeador = passeadorResults.rows[0];
+      passeador.id = passeador.id_passeador;
       if (passeador.imagem) {
         passeador.imagem = `data:image/jpeg;base64,${passeador.imagem.toString('base64')}`;
       }
