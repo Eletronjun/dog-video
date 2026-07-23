@@ -12,12 +12,12 @@ const containerStyle = {
   };
   
 
-function Map({ onClose }) {
+function LocationMap({ onClose }) {
   const [currentPosition, setCurrentPosition] = useState(null);
   const [error, setError] = useState(null);
 
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: '',
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || '',
   });
 
   useEffect(() => {
@@ -64,4 +64,4 @@ function Map({ onClose }) {
   );
 }
 
-export default Map;
+export default LocationMap;
