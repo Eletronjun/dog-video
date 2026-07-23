@@ -62,6 +62,9 @@ function VisualizarPasseador() {
         alt="Ícone de voltar"
         className="back-icon"
         onClick={() => navigate("/passeadores")}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate("/passeadores"); }}
+        role="button"
+        tabIndex={0}
       />
 
       <div className="form-container">

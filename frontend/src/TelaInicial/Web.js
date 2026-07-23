@@ -63,7 +63,14 @@ function Web({ onLogout }) {
     <div className="Web-Inicial">
       <header className="Web-header-inicial">
         <img src="/logotipo.svg" className="Web-logotipo" alt="Dogvideo Logomarca" />
-        <div className="tabbar-title" onClick={handleDadosClienteClick} style={{ cursor: 'pointer' }}>
+        <div 
+          className="tabbar-title" 
+          onClick={handleDadosClienteClick} 
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleDadosClienteClick(); }}
+          role="button"
+          tabIndex={0}
+          style={{ cursor: 'pointer' }}
+        >
           <img src="/user.svg" alt="Ícone do Usuário" className="user-icon" />
           <span className="tabbar-title-text">Dados do Cliente</span>
         </div>
