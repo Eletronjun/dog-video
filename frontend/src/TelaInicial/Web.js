@@ -20,7 +20,19 @@ function Web({ onLogout }) {
   useEffect(() => {
     // Busca o passeador associado ao cliente logado
     const fetchPasseador = async () => {
-      const idCliente = localStorage.getItem('id_cliente');
+      let idCliente = localStorage.getItem('id_cliente');
+      if (!idCliente || idCliente === 'undefined' || idCliente === 'null') {
+        try {
+          const authData = JSON.parse(localStorage.getItem('authData'));
+          if (authData && authData.id_cliente) {
+            idCliente = authData.id_cliente;
+            localStorage.setItem('id_cliente', idCliente);
+          }
+        } catch (e) {
+          // Ignora erro de parse
+        }
+      }
+
       if (!idCliente || idCliente === 'undefined' || idCliente === 'null') {
         console.error('ID do cliente não encontrado no localStorage.');
         return;
@@ -36,7 +48,8 @@ function Web({ onLogout }) {
 
           if (passeadorData.success) {
             const p = passeadorData.passeador;
-            setPasseadores([{ ...p, id: p.id || p.id_passeador || data.id_passeador }]);
+            const validId = p.id || p.id_passeador || data.id_passeador;
+            setPasseadores([{ ...p, id: validId, id_passeador: validId }]);
           } else {
             console.error('Erro ao buscar passeador:', passeadorData.message);
           }
@@ -112,6 +125,7 @@ function Web({ onLogout }) {
       <div className="passeadores">
         {passeadores.map((passeador) => {
           const targetId = passeador.id || passeador.id_passeador;
+          if (!targetId || targetId === 'undefined' || targetId === 'null') return null;
           return (
             <div className="passeador" key={targetId} onClick={() => navigate(`/cameras/passeador/${targetId}`)}>
               {passeador.imagem ? (
