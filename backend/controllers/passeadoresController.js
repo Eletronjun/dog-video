@@ -11,7 +11,7 @@ exports.getPasseadores = (req, res) => {
 
   if (passeadorId) {
     const queryPasseador = `
-      SELECT nome, email, imagem, cpf, telefone, endereco, modulo, modulo2 
+      SELECT id_passeador, id_passeador AS id, nome, email, imagem, cpf, telefone, endereco, modulo, modulo2 
       FROM passeadores 
       WHERE id_passeador = $1`;
 
