@@ -10,7 +10,7 @@ const verificarConflitoModulo = async (id_passeador, horario_passeio, id_cliente
     JOIN passeadores pa ON p.id_passeador = pa.id_passeador
     WHERE pa.id_passeador != $1 -- Ignora o passeador selecionado
     AND ($2::TEXT IS NULL OR p.id_cliente::TEXT != $2::TEXT) -- Ignora o cliente atual, se fornecido
-    AND pa.id_passeador != $3 -- Ignora o passeador atual, se fornecido
+    AND ($3::INT IS NULL OR pa.id_passeador != $3) -- Ignora o passeador atual, se fornecido
     AND (pa.modulo = (SELECT modulo FROM passeadores WHERE id_passeador = $1)
          OR pa.modulo2 = (SELECT modulo2 FROM passeadores WHERE id_passeador = $1)) -- Verifica conflitos nos módulos do novo passeador
   `;
