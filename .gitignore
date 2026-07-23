@@ -88,6 +88,10 @@ lerna-debug.log
 backend/tokens/*.json
 frontend/build/
 
+# Agent local rules
+AGENTS.md
+.agents/
+
 # System Files
 .DS_Store
 Thumbs.d
