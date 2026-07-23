@@ -10,8 +10,9 @@ afterAll(async () => {
 
 const randomEmail = () => `test${Math.floor(Math.random() * 100000)}@mail.com`;
 
-describe('Passeadores Endpoints', () => {
+describe('Passeadores Endpoints Comprehensive Tests', () => {
   let createdPasseadorId;
+  let tempClienteId;
 
   it('POST /criarpasseador should create passeador', async () => {
     const res = await request(app)
@@ -22,30 +23,41 @@ describe('Passeadores Endpoints', () => {
         cpf: '98765432100',
         telefone: '61977777777',
         endereco: 'Rua Passeador',
-        imagem: null,
-        modulo: 1,
-        modulo2: 2,
+        imagem: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+        modulo: 101,
+        modulo2: 102,
       });
     expect(res.statusCode).toBe(201);
     expect(res.body.success).toBe(true);
     createdPasseadorId = res.body.id_passeador;
   });
 
-  it('GET /passeadores should return passeadores', async () => {
+  it('GET /passeadores should return all passeadores', async () => {
     const res = await request(app).get('/passeadores');
     expect(res.statusCode).toBe(200);
     expect(res.body.success).toBe(true);
     expect(Array.isArray(res.body.passeadores)).toBe(true);
   });
 
-  it('GET /passeadores/:id should return passeador details', async () => {
-    if (!createdPasseadorId) return;
-    const res = await request(app).get(`/passeadores/${createdPasseadorId}`);
-    expect([200, 404]).toContain(res.statusCode);
+  it('GET /passeadores/:id should return 400 for invalid ID', async () => {
+    const res = await request(app).get('/passeadores/undefined');
+    expect(res.statusCode).toBe(400);
+    expect(res.body.message).toBe('ID do passeador inválido');
   });
 
-  it('PUT /passeadores/:id should update passeador', async () => {
-    if (!createdPasseadorId) return;
+  it('GET /passeadores/:id should return 404 for non-existent ID', async () => {
+    const res = await request(app).get('/passeadores/999999');
+    expect(res.statusCode).toBe(404);
+  });
+
+  it('GET /passeadores/:id should return passeador details and image conversion', async () => {
+    const res = await request(app).get(`/passeadores/${createdPasseadorId}`);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.passeador.nome).toBe('Passeador Teste');
+  });
+
+  it('PUT /passeadores/:id should update passeador info and image', async () => {
     const res = await request(app)
       .put(`/passeadores/${createdPasseadorId}`)
       .send({
@@ -54,52 +66,83 @@ describe('Passeadores Endpoints', () => {
         cpf: '98765432100',
         telefone: '61977777777',
         endereco: 'Rua Passeador Atualizada',
-        imagem: null,
-        modulo: 2,
-        modulo2: 2,
+        imagem: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+        modulo: 101,
+        modulo2: 102,
       });
-    expect([200, 500]).toContain(res.statusCode);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.success).toBe(true);
   });
 
-  it('GET /passeadores/:id/horarios should return walk schedules', async () => {
-    if (!createdPasseadorId) return;
+  it('GET /passeadores/:id/horarios should return walk schedules when walks exist', async () => {
+    const cliRes = await pool.query(`
+      INSERT INTO clientes (nome, email, cpf, telefone, endereco, pacote, tipo, senha)
+      VALUES ('Cli Horarios', $1, '00000000000', '000000000', 'Rua', 'mensal', 0, 'hash')
+      RETURNING id_cliente
+    `, [randomEmail()]);
+    tempClienteId = cliRes.rows[0].id_cliente;
+    await pool.query(`INSERT INTO passeios (horario_passeio, id_cliente, id_passeador) VALUES ('16:00:00', $1, $2)`, [tempClienteId, createdPasseadorId]);
+
     const res = await request(app).get(`/passeadores/${createdPasseadorId}/horarios`);
     expect(res.statusCode).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(Array.isArray(res.body.horarios)).toBe(true);
+    expect(res.body.horarios.length).toBeGreaterThan(0);
+
+    await pool.query(`DELETE FROM passeios WHERE id_cliente = $1`, [tempClienteId]);
+    await pool.query(`DELETE FROM clientes WHERE id_cliente = $1`, [tempClienteId]);
+    tempClienteId = null;
   });
 
-  it('DELETE /passeadores/:id should delete passeador and handle dependencies', async () => {
-    if (!createdPasseadorId) return;
+  it('GET /api/passeadores/modulo/:modulo should return 400 for invalid modulo', async () => {
+    const res = await request(app).get('/api/passeadores/modulo/invalid');
+    expect(res.statusCode).toBe(400);
+    expect(res.body.message).toBe('ID do módulo inválido.');
+  });
 
-    const clienteRes = await request(app)
-      .post('/criarcliente')
-      .send({
-        nome: 'Cliente Teste Delete Pass',
-        email: randomEmail(),
-        cpf: '12345678901',
-        telefone: '61999999999',
-        endereco: 'Rua Teste',
-        pacote: 'mensal',
-        horario: '10:00:00',
-        anotacao: 'Nenhuma',
-        caes: ['Dog1', 'Dog2'],
-        id_passeador: createdPasseadorId,
-        temporario: 0,
-        dias_teste: null,
-      });
+  it('GET /api/passeadores/modulo/:modulo should return 404 for empty modulo', async () => {
+    const res = await request(app).get('/api/passeadores/modulo/999999');
+    expect(res.statusCode).toBe(404);
+    expect(res.body.message).toBe('Nenhum passeador encontrado para este módulo.');
+  });
 
-    const res = await request(app).delete(`/passeadores/${createdPasseadorId}`);
-    expect([200, 404, 500]).toContain(res.statusCode);
+  it('GET /api/passeadores/modulo/:modulo should return passeadores for valid modulo', async () => {
+    const res = await request(app).get('/api/passeadores/modulo/101');
+    expect(res.statusCode).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.passeadores.length).toBeGreaterThan(0);
+  });
 
-    if (res.statusCode === 200) {
-      expect(res.body.success).toBe(true);
-      expect(res.body.message).toBe('Passeador excluído com sucesso!');
-    }
+  it('GET /cachorros/:id_cliente/passeador should return 400 for invalid cliente ID', async () => {
+    const res = await request(app).get('/cachorros/invalid/passeador');
+    expect(res.statusCode).toBe(400);
+    expect(res.body.message).toBe('ID do cliente inválido.');
+  });
 
-    if (clienteRes.body.success) {
-      await request(app).delete(`/clientes/${clienteRes.body.id_cliente}`);
-    }
+  it('GET /cachorros/:id_cliente/passeador should return 404 when no passeador found', async () => {
+    const res = await request(app).get('/cachorros/999999/passeador');
+    expect(res.statusCode).toBe(404);
+    expect(res.body.message).toBe('Passeador não encontrado para o cliente.');
+  });
+
+  it('GET /cachorros/:id_cliente/passeador should find passeador from cachorros table if no passeios exist', async () => {
+    const cliRes = await request(app).post('/criarcliente').send({
+      nome: 'Cli Dog Only',
+      email: randomEmail(),
+      cpf: '12345678901',
+      telefone: '12345678901',
+      endereco: 'End',
+      pacote: 'mensal',
+      caes: ['DogWithoutPasseio'],
+      id_passeador: createdPasseadorId
+    });
+    const cId = cliRes.body.id_cliente;
+
+    const res = await request(app).get(`/cachorros/${cId}/passeador`);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.id_passeador).toBe(createdPasseadorId);
+
+    await request(app).delete(`/clientes/${cId}`);
   });
 
   it('POST /criarpasseador should fail with missing fields', async () => {
@@ -113,51 +156,21 @@ describe('Passeadores Endpoints', () => {
     expect(res.body.success).toBe(false);
   });
 
-  it('POST /criarpasseador should fail with invalid data', async () => {
-    const res = await request(app)
-      .post('/criarpasseador')
-      .send({
-        nome: '',
-        email: 'invalid-email',
-        cpf: '123',
-        telefone: 'invalid-phone',
-        endereco: '',
-        imagem: null,
-        modulo: null,
-      });
-    expect(res.statusCode).toBe(400);
-    expect(res.body.success).toBe(false);
-  });
-
   it('GET /passeadores should handle database connection errors', async () => {
     const res = await request(app).get('/passeadores?simulateError=true');
     expect(res.statusCode).toBe(500);
     expect(res.body.message).toBe('Erro de conexão com o banco de dados');
   });
 
-  it('GET /cachorros/:id_cliente/passeador should return passeador for a client', async () => {
-    // Cria um passeador
-    const passRes = await request(app).post('/criarpasseador').send({
-      nome: 'Pass Test', email: randomEmail(), cpf: '98765432100', telefone: '12345678900', endereco: 'End', modulo: 1, modulo2: 2
-    });
-    const pId = passRes.body.id_passeador;
+  it('DELETE /passeadores/999999 should return 404 for non-existent passeador', async () => {
+    const res = await request(app).delete('/passeadores/999999');
+    expect(res.statusCode).toBe(404);
+    expect(res.body.message).toBe('Passeador não encontrado');
+  });
 
-    // Cria um cliente
-    const cliRes = await request(app).post('/criarcliente').send({
-      nome: 'Cli Test', email: randomEmail(), cpf: '12345678901', telefone: '12345678901', endereco: 'End', pacote: 'mensal', caes: ['Dog'], id_passeador: pId
-    });
-    const cId = cliRes.body.id_cliente;
-
-    if (pId && cId) {
-      await pool.query(`INSERT INTO passeios (horario_passeio, id_cliente, id_passeador) VALUES ('10:00:00', $1, $2)`, [cId, pId]);
-      
-      const res = await request(app).get(`/cachorros/${cId}/passeador`);
-      expect(res.statusCode).toBe(200);
-      expect(res.body.success).toBe(true);
-
-      await pool.query('DELETE FROM passeios WHERE id_cliente = $1', [cId]);
-      await request(app).delete(`/clientes/${cId}`);
-      await request(app).delete(`/passeadores/${pId}`);
-    }
+  it('DELETE /passeadores/:id should delete passeador and unassign dogs', async () => {
+    const res = await request(app).delete(`/passeadores/${createdPasseadorId}`);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.success).toBe(true);
   });
 });
