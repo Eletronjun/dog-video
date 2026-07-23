@@ -62,8 +62,8 @@ function Login({ onLogin }) {
         // Chama a função onLogin e passa userType e id_cliente
         onLogin(data.userType, data.id_cliente);
 
-        // Salva o id_cliente no localStorage (para não admin)
-        if (data.userType !== 'admin') {
+        // Salva o id_cliente no localStorage
+        if (data.id_cliente) {
           localStorage.setItem('id_cliente', data.id_cliente);
         }
 

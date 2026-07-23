@@ -21,7 +21,7 @@ function Web({ onLogout }) {
     // Busca o passeador associado ao cliente logado
     const fetchPasseador = async () => {
       const idCliente = localStorage.getItem('id_cliente');
-      if (!idCliente) {
+      if (!idCliente || idCliente === 'undefined' || idCliente === 'null') {
         console.error('ID do cliente não encontrado no localStorage.');
         return;
       }
@@ -30,7 +30,7 @@ function Web({ onLogout }) {
         const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/cachorros/${idCliente}/passeador`);
         const data = await response.json();
 
-        if (data.success) {
+        if (data.success && data.id_passeador && data.id_passeador !== 'undefined') {
           const passeadorResponse = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/passeadores/${data.id_passeador}`);
           const passeadorData = await passeadorResponse.json();
 
