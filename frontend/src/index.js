@@ -107,7 +107,7 @@ async function subscribeUser(idCliente = null, idPasseador = null) {
     const subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey:
-        'BBH2oyhNjmKPnyR140S375tVHFM1wuSd7GW7ijm90Ja7NB2eX67YQRbDLVyW_QrLqiDpbIy9QecaBDC_K1AWCro',
+        process.env.REACT_APP_VAPID_PUBLIC_KEY || 'BBH2oyhNjmKPnyR140S375tVHFM1wuSd7GW7ijm90Ja7NB2eX67YQRbDLVyW_QrLqiDpbIy9QecaBDC_K1AWCro',
     });
 
     await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/subscribe`, {
