@@ -74,7 +74,7 @@ function Login({ onLogin }) {
           navigate('/');
         }
       } else {
-        setError('Email ou senha incorretos.');
+        setError(data.message || 'Email ou senha incorretos.');
       }
     } catch (err) {
       console.error('Erro ao fazer login:', err);
