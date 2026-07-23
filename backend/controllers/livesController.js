@@ -4,7 +4,7 @@ exports.getLiveByModulo = async (req, res) => {
   const { modulo } = req.params;
 
   // Validação para garantir que o modulo é um número
-  if (isNaN(modulo)) {
+  if (Number.isNaN(Number(modulo))) {
     return res.status(400).json({ success: false, message: 'ID do módulo inválido.' });
   }
   

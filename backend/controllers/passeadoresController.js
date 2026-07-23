@@ -198,7 +198,7 @@ exports.getHorariosPasseador = async (req, res) => {
 exports.getPasseadoresByModulo = async (req, res) => {
   const { modulo } = req.params;
 
-  if (isNaN(modulo)) {
+  if (Number.isNaN(Number(modulo))) {
     return res.status(400).json({ success: false, message: 'ID do módulo inválido.' });
   }
 
