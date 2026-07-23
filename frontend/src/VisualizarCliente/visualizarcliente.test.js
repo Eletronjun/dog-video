@@ -3,7 +3,6 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import VisualizarCliente from './visualizarcliente';
 
-// Mocks the global fetch
 global.fetch = jest.fn();
 
 const mockNavigate = jest.fn();
@@ -17,6 +16,7 @@ describe('VisualizarCliente Component', () => {
   beforeEach(() => {
     mockNavigate.mockClear();
     fetch.mockClear();
+    localStorage.clear();
   });
 
   const mockClienteData = {
@@ -40,7 +40,7 @@ describe('VisualizarCliente Component', () => {
   };
 
   test('Renderiza carregando inicialmente', () => {
-    fetch.mockResolvedValueOnce(new Promise(() => {})); // Never resolves
+    fetch.mockResolvedValueOnce(new Promise(() => {}));
     render(<VisualizarCliente />, { wrapper: MemoryRouter });
     expect(screen.getByText('Carregando...')).toBeInTheDocument();
   });
@@ -59,6 +59,80 @@ describe('VisualizarCliente Component', () => {
       expect(screen.getByText('Ana')).toBeInTheDocument();
       expect(screen.getByText('ana@teste.com')).toBeInTheDocument();
       expect(screen.getByText('10:00')).toBeInTheDocument();
+    });
+  });
+
+  test('Renderiza cliente com pacote Temporario, dias_teste e id_passeador', async () => {
+    const mockTempData = {
+      success: true,
+      cliente: {
+        ...mockClienteData.cliente,
+        pacote: 'Temporario',
+        dias_teste: '7',
+        criado_em: new Date().toISOString(),
+        id_passeador: 5,
+      }
+    };
+
+    fetch.mockResolvedValueOnce({
+      json: jest.fn().mockResolvedValue(mockTempData)
+    });
+    fetch.mockResolvedValueOnce({
+      json: jest.fn().mockResolvedValue(mockPasseioData)
+    });
+
+    render(<VisualizarCliente />, { wrapper: MemoryRouter });
+
+    await waitFor(() => {
+      expect(screen.getByText(/Faltam|Termina/i)).toBeInTheDocument();
+    });
+    expect(localStorage.getItem('passeadorId')).toBe('5');
+  });
+
+  test('Trata data invalida em criado_em para pacote Temporario', async () => {
+    const mockInvalidData = {
+      success: true,
+      cliente: {
+        ...mockClienteData.cliente,
+        pacote: 'Temporario',
+        dias_teste: '7',
+        criado_em: 'data-invalida',
+      }
+    };
+
+    fetch.mockResolvedValueOnce({
+      json: jest.fn().mockResolvedValue(mockInvalidData)
+    });
+    fetch.mockResolvedValueOnce({
+      json: jest.fn().mockResolvedValue({ success: false })
+    });
+
+    render(<VisualizarCliente />, { wrapper: MemoryRouter });
+
+    await waitFor(() => {
+      expect(screen.getByText(/Termina hoje \(Data inválida\)/i)).toBeInTheDocument();
+    });
+  });
+
+  test('Renderiza Cliente nao encontrado quando success e false', async () => {
+    fetch.mockResolvedValueOnce({
+      json: jest.fn().mockResolvedValue({ success: false, message: 'Cliente não encontrado' })
+    });
+
+    render(<VisualizarCliente />, { wrapper: MemoryRouter });
+
+    await waitFor(() => {
+      expect(screen.getByText('Cliente não encontrado')).toBeInTheDocument();
+    });
+  });
+
+  test('Trata erro de rede na busca do cliente', async () => {
+    fetch.mockRejectedValueOnce(new Error('Erro de Conexão'));
+
+    render(<VisualizarCliente />, { wrapper: MemoryRouter });
+
+    await waitFor(() => {
+      expect(screen.getByText('Cliente não encontrado')).toBeInTheDocument();
     });
   });
 
