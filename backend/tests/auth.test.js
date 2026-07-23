@@ -37,12 +37,33 @@ describe('Auth Endpoints', () => {
     expect([401, 500]).toContain(res.statusCode);
   });
 
-  it('PUT /clientes/:id/reset-senha should reset senha', async () => {
-    if (!createdClienteId) return;
-    const res = await request(app).put(`/clientes/${createdClienteId}/reset-senha`);
-    expect([200, 401, 404]).toContain(res.statusCode);
-    if (res.statusCode === 200) {
-      expect(res.body.success).toBe(true);
-    }
+  it('POST /alterar-senha should fail if id_cliente is missing', async () => {
+    const res = await request(app)
+      .post('/alterar-senha')
+      .send({ novaSenha: 'newpassword123' });
+    expect(res.statusCode).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /alterar-senha should update password', async () => {
+    const res = await request(app)
+      .post('/alterar-senha')
+      .send({ id_cliente: createdClienteId, novaSenha: 'newpassword123', termo_aceito: true });
+    expect(res.statusCode).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /aceitar-termo should fail if id_cliente is missing', async () => {
+    const res = await request(app).post('/aceitar-termo').send({});
+    expect(res.statusCode).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /aceitar-termo should update terms acceptance', async () => {
+    const res = await request(app)
+      .post('/aceitar-termo')
+      .send({ id_cliente: createdClienteId });
+    expect(res.statusCode).toBe(200);
+    expect(res.body.success).toBe(true);
   });
 });
