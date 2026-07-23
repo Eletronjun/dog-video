@@ -35,7 +35,8 @@ function Web({ onLogout }) {
           const passeadorData = await passeadorResponse.json();
 
           if (passeadorData.success) {
-            setPasseadores([passeadorData.passeador]);
+            const p = passeadorData.passeador;
+            setPasseadores([{ ...p, id: p.id || p.id_passeador || data.id_passeador }]);
           } else {
             console.error('Erro ao buscar passeador:', passeadorData.message);
           }
@@ -109,16 +110,19 @@ function Web({ onLogout }) {
       </div>
 
       <div className="passeadores">
-        {passeadores.map((passeador) => (
-          <div className="passeador" key={passeador.id} onClick={() => navigate(`/cameras/passeador/${passeador.id}`)}>
-            {passeador.imagem ? (
-              <img src={passeador.imagem} alt={passeador.nome} className="passeador-foto" />
-            ) : (
-              <div className="placeholder">Sem Imagem</div>
-            )}
-            <p className="passeador-nome">{passeador.nome}</p>
-          </div>
-        ))}
+        {passeadores.map((passeador) => {
+          const targetId = passeador.id || passeador.id_passeador;
+          return (
+            <div className="passeador" key={targetId} onClick={() => navigate(`/cameras/passeador/${targetId}`)}>
+              {passeador.imagem ? (
+                <img src={passeador.imagem} alt={passeador.nome} className="passeador-foto" />
+              ) : (
+                <div className="placeholder">Sem Imagem</div>
+              )}
+              <p className="passeador-nome">{passeador.nome}</p>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
