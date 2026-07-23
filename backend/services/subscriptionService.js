@@ -7,14 +7,14 @@ const saveSubscription = (subscription, id_cliente) => {
 
     if (!endpoint || !p256dh || !auth || !id_cliente) {
       console.error('Dados incompletos para salvar a subscription:', { endpoint, p256dh, auth, id_cliente });
-      return reject('Dados incompletos para salvar a subscription');
+      return reject(new Error('Dados incompletos para salvar a subscription'));
     }
 
     const checkQuery = 'SELECT * FROM subscriptions WHERE endpoint = $1 AND id_cliente = $2';
     pool.query(checkQuery, [endpoint, id_cliente], (err, results) => {
       if (err) {
         console.error('Erro ao buscar subscription:', err);
-        return reject('Erro ao buscar subscription');
+        return reject(new Error('Erro ao buscar subscription'));
       }
 
       if (results.rows.length > 0) {
@@ -27,7 +27,7 @@ const saveSubscription = (subscription, id_cliente) => {
         pool.query(insertQuery, [endpoint, p256dh, auth, id_cliente], (err) => {
           if (err) {
             console.error('Erro ao inserir subscription:', err);
-            return reject('Erro ao inserir subscription');
+            return reject(new Error('Erro ao inserir subscription'));
           }
           return resolve('Subscription salva com sucesso');
         });

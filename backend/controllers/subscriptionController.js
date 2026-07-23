@@ -12,7 +12,7 @@ exports.subscribe = (req, res) => {
 
   saveSubscription(subscription, id_cliente)
     .then((message) => res.status(201).json({ success: true, message }))
-    .catch((error) => res.status(500).json({ success: false, message: error }));
+    .catch((error) => res.status(500).json({ success: false, message: error.message || error }));
 };
 
 exports.criarNotificacao = (req, res) => {
