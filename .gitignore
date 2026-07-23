@@ -84,6 +84,10 @@ jspm_packages/
 # Lerna
 lerna-debug.log
 
+# OAuth Tokens & Build Artifacts
+backend/tokens/*.json
+frontend/build/
+
 # System Files
 .DS_Store
 Thumbs.d
