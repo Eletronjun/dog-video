@@ -33,9 +33,7 @@ Na pasta raiz do projeto, copie o arquivo `.env` armazenado na documentação do
 ### 3. Senhas e Acessos Padrão
 
 - **Senha Padrão para Novos Clientes:** `dog123` (O sistema define automaticamente ao criar o cadastro).
-- **Senha do Administrador de Testes:**
-  - Ambiente **Dev/Hom**: `dog123`
-  - Ambiente **Prod**: `dog123.`
+- **Senha do Administrador de Testes:** `admin123` (ao executar o script de redefinição `reset_admin.js`).
 - **Redefinição Obrigatória:** O middleware obriga o usuário a redefinir a senha provisória em seu primeiro acesso antes de liberar as funcionalidades completas do sistema.
 - **Script Utilitário:** Caso precise resetar a senha do admin em todos os ambientes via banco de dados diretamente, utilize o script de segurança rodando o comando:
   `docker-compose exec app node backend/scripts/reset_admin.js`
