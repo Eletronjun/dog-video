@@ -48,8 +48,13 @@ describe('Cron Jobs', () => {
     // porem extraimos deleteTemporaryClients(). Para o fluxo, se não quebrar, passamos.
     expect(true).toBe(true);
 
-    // cleanup
-    await pool.query('DELETE FROM passeadores WHERE id_passeador = $1', [passeadorId]);
-    await pool.query('DELETE FROM clientes WHERE id_cliente = $1', [clienteId]);
+    // cleanup na ordem correta de FK: passeios -> clientes -> passeadores
+    if (clienteId) {
+      await pool.query('DELETE FROM passeios WHERE id_cliente = $1', [clienteId]);
+      await pool.query('DELETE FROM clientes WHERE id_cliente = $1', [clienteId]);
+    }
+    if (passeadorId) {
+      await pool.query('DELETE FROM passeadores WHERE id_passeador = $1', [passeadorId]);
+    }
   });
 });

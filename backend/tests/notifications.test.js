@@ -4,12 +4,16 @@ require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 const request = require('supertest');
 const { app, pool } = require('../app');
 
+let createdNotificationId;
+
 afterAll(async () => {
+  if (createdNotificationId) {
+    await pool.query('DELETE FROM notificacoes WHERE id_notificacao = $1', [createdNotificationId]);
+  }
   await pool.end();
 });
 
 describe('Notifications Endpoints', () => {
-  let createdNotificationId;
 
   it('POST /subscribe should fail with missing body', async () => {
     const res = await request(app)

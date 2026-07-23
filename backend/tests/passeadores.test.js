@@ -155,6 +155,7 @@ describe('Passeadores Endpoints', () => {
       expect(res.statusCode).toBe(200);
       expect(res.body.success).toBe(true);
 
+      await pool.query('DELETE FROM passeios WHERE id_cliente = $1', [cId]);
       await request(app).delete(`/clientes/${cId}`);
       await request(app).delete(`/passeadores/${pId}`);
     }

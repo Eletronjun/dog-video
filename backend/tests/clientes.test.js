@@ -24,6 +24,11 @@ describe('Clientes Endpoints', () => {
   });
 
   afterAll(async () => {
+    if (createdClienteId) {
+      await pool.query('DELETE FROM passeios WHERE id_cliente = $1', [createdClienteId]);
+      await pool.query('DELETE FROM cachorros WHERE id_cliente = $1', [createdClienteId]);
+      await pool.query('DELETE FROM clientes WHERE id_cliente = $1', [createdClienteId]);
+    }
     if (createdPasseadorId) {
       await pool.query('DELETE FROM passeadores WHERE id_passeador = $1', [createdPasseadorId]);
     }
@@ -88,6 +93,12 @@ describe('Clientes Endpoints', () => {
     expect([200, 400, 500]).toContain(res.statusCode);
   });
 
+  it('GET /passeios/:id_cliente should return walk schedule for a client', async () => {
+    if (!createdClienteId) return;
+    const res = await request(app).get(`/passeios/${createdClienteId}`);
+    expect([200, 404]).toContain(res.statusCode);
+  });
+
   it('DELETE /clientes/:id should delete cliente', async () => {
     if (!createdClienteId) return;
     const res = await request(app).delete(`/clientes/${createdClienteId}`);
@@ -125,11 +136,5 @@ describe('Clientes Endpoints', () => {
     const res = await request(app).get('/clientes?simulateError=true');
     expect(res.statusCode).toBe(500);
     expect(res.body.message).toBeDefined();
-  });
-
-  it('GET /passeios/:id_cliente should return walk schedule for a client', async () => {
-    if (!createdClienteId) return;
-    const res = await request(app).get(`/passeios/${createdClienteId}`);
-    expect([200, 404]).toContain(res.statusCode);
   });
 });
