@@ -27,11 +27,11 @@ app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 // Conexão com o Banco de Dados
 const pool = require('./config/db');
 
-// Configuração das chaves VAPID
+// Configuração das chaves VAPID (Web Push)
 webPush.setVapidDetails(
-  'mailto:232006663@aluno.unb.br',
-  'BBH2oyhNjmKPnyR140S375tVHFM1wuSd7GW7ijm90Ja7NB2eX67YQRbDLVyW_QrLqiDpbIy9QecaBDC_K1AWCro', //chave pública gerada
-  'Km-siZ1s_FTdpW594744qMlXuDgan3ve77AAAAWGTcU' //chave privada gerada
+  process.env.VAPID_MAILTO || 'mailto:232006663@aluno.unb.br',
+  process.env.VAPID_PUBLIC_KEY || 'BBH2oyhNjmKPnyR140S375tVHFM1wuSd7GW7ijm90Ja7NB2eX67YQRbDLVyW_QrLqiDpbIy9QecaBDC_K1AWCro',
+  process.env.VAPID_PRIVATE_KEY || 'Km-siZ1s_FTdpW594744qMlXuDgan3ve77AAAAWGTcU'
 );
 
 
