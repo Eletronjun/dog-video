@@ -75,9 +75,11 @@ prune: ## Remove todos recursos Docker nao utilizados (containers, redes, imagen
 
 ##@ Testes
 
-test: ## Roda todos os testes dentro do container
-	@echo "$(YELLOW)Rodando todos os testes...$(RESET)"
+test: ## Roda todos os testes (backend e frontend) dentro do container
+	@echo "$(YELLOW)Rodando testes do backend...$(RESET)"
 	docker exec -it $(CONTAINER_APP) sh -c "cd $(BACKEND_PATH) && npm test"
+	@echo "$(YELLOW)Rodando testes do frontend...$(RESET)"
+	docker exec -it $(CONTAINER_APP) sh -c "cd $(FRONTEND_PATH) && npm test -- --coverage --watchAll=false"
 
 test-backend: ## Roda os testes do backend dentro do container
 	@echo "$(YELLOW)Rodando testes do backend...$(RESET)"
