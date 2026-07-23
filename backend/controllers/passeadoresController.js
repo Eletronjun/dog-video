@@ -152,16 +152,30 @@ exports.excluirPasseador = (req, res) => {
 exports.getPasseadorPorCliente = async (req, res) => {
   const { id_cliente } = req.params;
 
+  if (!id_cliente || Number.isNaN(Number(id_cliente))) {
+    return res.status(400).json({ success: false, message: 'ID do cliente inválido.' });
+  }
+
   try {
-    const query = `
+    const queryPasseios = `
       SELECT id_passeador
       FROM passeios
       WHERE id_cliente = $1
       LIMIT 1
     `;
-    const result = await pool.query(query, [id_cliente]);
+    let result = await pool.query(queryPasseios, [id_cliente]);
 
-    if (result.rows.length === 0) {
+    if (result.rows.length === 0 || !result.rows[0].id_passeador) {
+      const queryCachorros = `
+        SELECT id_passeador
+        FROM cachorros
+        WHERE id_cliente = $1 AND id_passeador IS NOT NULL
+        LIMIT 1
+      `;
+      result = await pool.query(queryCachorros, [id_cliente]);
+    }
+
+    if (result.rows.length === 0 || !result.rows[0].id_passeador) {
       return res.status(404).json({ success: false, message: 'Passeador não encontrado para o cliente.' });
     }
 
