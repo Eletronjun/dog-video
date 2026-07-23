@@ -43,10 +43,10 @@ exports.enviarNotificacao = (req, res) => {
     const payload = JSON.stringify({ title: notificacao.tipo, body: notificacao.mensagem });
     const querySubscriptions = `
       SELECT * FROM subscriptions 
-      WHERE (id_cliente = $1 OR id_passeador = $2) 
-      OR (id_cliente IS NULL AND id_passeador IS NULL)
+      WHERE (id_cliente = $1) 
+      OR (id_cliente IS NULL)
     `;
-    pool.query(querySubscriptions, [notificacao.id_cliente, notificacao.id_passeador], (err, subscriptions) => {
+    pool.query(querySubscriptions, [notificacao.id_cliente], (err, subscriptions) => {
       if (err) {
         console.error('Erro ao buscar subscriptions:', err);
         return res.status(500).json({ success: false, message: 'Erro ao buscar subscriptions' });
