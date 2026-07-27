@@ -8,6 +8,7 @@ const { deleteTemporaryClients, startCronJobs } = require('../jobs/cronJobs');
 const { pool } = require('../app');
 
 jest.mock('web-push', () => ({
+  setVapidDetails: jest.fn(),
   sendNotification: jest.fn().mockResolvedValue({}),
 }));
 
@@ -79,8 +80,8 @@ describe('Cron Jobs Comprehensive Unit Tests', () => {
     const spy = jest.spyOn(pool, 'connect').mockImplementationOnce(async () => {
       return {
         query: jest.fn().mockImplementation((queryText) => {
-          if (queryText === 'BEGIN') return Promise.resolve();
-          throw new Error('Database Error Simulation');
+          if (queryText === 'BEGIN' || queryText === 'ROLLBACK') return Promise.resolve();
+          return Promise.reject(new Error('Database Error Simulation'));
         }),
         release: jest.fn(),
       };
@@ -93,7 +94,6 @@ describe('Cron Jobs Comprehensive Unit Tests', () => {
   it('startCronJobs should execute walk reminder cron callback and process subscriptions', (done) => {
     const cron = require('node-cron');
     const spy = jest.spyOn(cron, 'schedule').mockImplementation((pattern, callback) => {
-      // Execute the callback immediately to test cron logic
       callback();
       return { stop: jest.fn() };
     });
@@ -102,7 +102,6 @@ describe('Cron Jobs Comprehensive Unit Tests', () => {
     expect(spy).toHaveBeenCalled();
     spy.mockRestore();
 
-    // Small delay to allow async pool queries inside schedule to settle
     setTimeout(() => {
       done();
     }, 500);
