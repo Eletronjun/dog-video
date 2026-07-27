@@ -54,9 +54,70 @@ describe('Passeios Controller API Tests', () => {
     expect(res.body.success).toBe(true);
   });
 
+  it('PUT /passeios/999999 should return 404 for non-existing walk', async () => {
+    const res = await request(app)
+      .put('/passeios/999999')
+      .send({ horario_passeio: '10:00', id_passeador: testPasseadorId });
+
+    expect(res.statusCode).toBe(404);
+    expect(res.body.message).toBe('Passeio não encontrado para o cliente.');
+  });
+
   it('GET /passeios/999999 should return 404 for non-existing client walk', async () => {
     const res = await request(app).get('/passeios/999999');
     expect(res.statusCode).toBe(404);
     expect(res.body.success).toBe(false);
+  });
+
+  it('POST /passeios with DB error should return 500', async () => {
+    const origQuery = pool.query;
+    jest.spyOn(pool, 'query').mockImplementation((queryText, params) => {
+      if (typeof queryText === 'string' && queryText.includes('INSERT INTO passeios')) {
+        return Promise.reject(new Error('DB Error'));
+      }
+      return origQuery.call(pool, queryText, params);
+    });
+
+    const res = await request(app)
+      .post('/passeios')
+      .send({ horario_passeio: '10:00', id_cliente: testClientId });
+
+    expect(res.statusCode).toBe(500);
+    expect(res.body.message).toBe('Erro ao criar passeio.');
+    pool.query.mockRestore();
+  });
+
+  it('PUT /passeios/:id_cliente with DB error should return 500', async () => {
+    const origQuery = pool.query;
+    jest.spyOn(pool, 'query').mockImplementation((queryText, params) => {
+      if (typeof queryText === 'string' && queryText.includes('UPDATE passeios')) {
+        return Promise.reject(new Error('DB Error'));
+      }
+      return origQuery.call(pool, queryText, params);
+    });
+
+    const res = await request(app)
+      .put(`/passeios/${testClientId}`)
+      .send({ horario_passeio: '10:00', id_passeador: testPasseadorId });
+
+    expect(res.statusCode).toBe(500);
+    expect(res.body.message).toBe('Erro ao atualizar passeio.');
+    pool.query.mockRestore();
+  });
+
+  it('GET /passeios/:id_cliente with DB error should return 500', async () => {
+    const origQuery = pool.query;
+    jest.spyOn(pool, 'query').mockImplementation((queryText, params) => {
+      if (typeof queryText === 'string' && queryText.includes('SELECT TO_CHAR(horario_passeio')) {
+        return Promise.reject(new Error('DB Error'));
+      }
+      return origQuery.call(pool, queryText, params);
+    });
+
+    const res = await request(app).get(`/passeios/${testClientId}`);
+
+    expect(res.statusCode).toBe(500);
+    expect(res.body.message).toBe('Erro ao buscar horário de passeio.');
+    pool.query.mockRestore();
   });
 });
