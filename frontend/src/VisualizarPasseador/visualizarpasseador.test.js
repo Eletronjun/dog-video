@@ -38,9 +38,31 @@ describe('VisualizarPasseador Component', () => {
   };
 
   test('Renderiza carregando inicialmente', () => {
-    fetch.mockResolvedValueOnce(new Promise(() => {})); // Never resolves
+    fetch.mockResolvedValueOnce(new Promise(() => {}));
     render(<VisualizarPasseador />, { wrapper: MemoryRouter });
     expect(screen.getByText('Carregando...')).toBeInTheDocument();
+  });
+
+  test('Renderiza "Passeador não encontrado" em caso de data.success false ou erro no fetch', async () => {
+    // 1. data.success false
+    fetch.mockResolvedValueOnce({
+      json: jest.fn().mockResolvedValue({ success: false, message: 'Não encontrado' })
+    });
+
+    render(<VisualizarPasseador />, { wrapper: MemoryRouter });
+
+    await waitFor(() => {
+      expect(screen.getByText('Passeador não encontrado')).toBeInTheDocument();
+    });
+
+    // 2. Exceção no fetch
+    fetch.mockRejectedValueOnce(new Error('Erro de Conexão'));
+
+    render(<VisualizarPasseador />, { wrapper: MemoryRouter });
+
+    await waitFor(() => {
+      expect(screen.getByText('Passeador não encontrado')).toBeInTheDocument();
+    });
   });
 
   test('Renderiza os dados do passeador com sucesso', async () => {
@@ -77,7 +99,7 @@ describe('VisualizarPasseador Component', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/editarpasseador/1');
   });
 
-  test('Navega de volta para passeadores', async () => {
+  test('Navega de volta para passeadores via clique e via teclado onKeyDown', async () => {
     fetch.mockResolvedValueOnce({
       json: jest.fn().mockResolvedValue(mockPasseadorData)
     });
@@ -89,7 +111,14 @@ describe('VisualizarPasseador Component', () => {
 
     await waitFor(() => screen.getByText('Ana Passeadora'));
 
-    fireEvent.click(screen.getByAltText('Ícone de voltar'));
+    const backIcon = screen.getByAltText('Ícone de voltar');
+    fireEvent.click(backIcon);
+    expect(mockNavigate).toHaveBeenCalledWith('/passeadores');
+
+    fireEvent.keyDown(backIcon, { key: 'Enter' });
+    expect(mockNavigate).toHaveBeenCalledWith('/passeadores');
+
+    fireEvent.keyDown(backIcon, { key: ' ' });
     expect(mockNavigate).toHaveBeenCalledWith('/passeadores');
   });
 });
