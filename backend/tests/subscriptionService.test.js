@@ -52,4 +52,43 @@ describe('Subscription Service Unit Tests', () => {
     const result = await saveSubscription(validSub, testClientId);
     expect(result).toBe('Subscription já existe');
   });
+
+  it('should reject with Error when database check query fails', async () => {
+    const validSub = {
+      endpoint: 'https://push.example.com/error-select',
+      keys: { p256dh: 'key', auth: 'auth' }
+    };
+    const origQuery = pool.query;
+    jest.spyOn(pool, 'query').mockImplementation((queryText, params, callback) => {
+      if (typeof callback === 'function') {
+        return callback(new Error('DB Select Error'), null);
+      }
+      return origQuery.call(pool, queryText, params, callback);
+    });
+
+    await expect(saveSubscription(validSub, testClientId)).rejects.toThrow('Erro ao buscar subscription');
+    pool.query.mockRestore();
+  });
+
+  it('should reject with Error when database insert query fails', async () => {
+    const validSub = {
+      endpoint: 'https://push.example.com/error-insert',
+      keys: { p256dh: 'key', auth: 'auth' }
+    };
+    const origQuery = pool.query;
+    jest.spyOn(pool, 'query').mockImplementation((queryText, params, callback) => {
+      if (typeof callback === 'function') {
+        if (queryText.includes('SELECT')) {
+          return callback(null, { rows: [] });
+        }
+        if (queryText.includes('INSERT')) {
+          return callback(new Error('DB Insert Error'), null);
+        }
+      }
+      return origQuery.call(pool, queryText, params, callback);
+    });
+
+    await expect(saveSubscription(validSub, testClientId)).rejects.toThrow('Erro ao inserir subscription');
+    pool.query.mockRestore();
+  });
 });
