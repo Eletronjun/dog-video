@@ -59,6 +59,31 @@ describe('EditarCliente Component', () => {
     });
   });
 
+  test('Trata respostas de erro e exceções no fetchData de clientes e passeadores', async () => {
+    // 1. clienteData success false
+    fetch.mockResolvedValueOnce({
+      json: jest.fn().mockResolvedValue({ success: false })
+    });
+    fetch.mockResolvedValueOnce({
+      json: jest.fn().mockResolvedValue({ success: false })
+    });
+
+    render(<EditarCliente />, { wrapper: MemoryRouter });
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledTimes(2);
+    });
+
+    // 2. Exceção no fetchData
+    fetch.mockRejectedValueOnce(new Error('Erro no fetch inicial'));
+
+    render(<EditarCliente />, { wrapper: MemoryRouter });
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledTimes(3);
+    });
+  });
+
   test('Valida entradas de formatação e exibe mensagens de erro', async () => {
     fetch.mockResolvedValueOnce({
       json: jest.fn().mockResolvedValue(mockClienteData)
@@ -94,6 +119,30 @@ describe('EditarCliente Component', () => {
     // Tenta salvar com erros
     fireEvent.click(screen.getByRole('button', { name: /salvar/i }));
     expect(window.alert).toHaveBeenCalledWith('Por favor, corrija os erros destacados antes de salvar.');
+  });
+
+  test('Trata pacote Temporario e input de dias de teste', async () => {
+    const tempClienteData = {
+      ...mockClienteData,
+      cliente: { ...mockClienteData.cliente, pacote: 'Temporario', dias_teste: '5' }
+    };
+
+    fetch.mockResolvedValueOnce({
+      json: jest.fn().mockResolvedValue(tempClienteData)
+    });
+    fetch.mockResolvedValueOnce({
+      json: jest.fn().mockResolvedValue(mockPasseadoresData)
+    });
+
+    render(<EditarCliente />, { wrapper: MemoryRouter });
+
+    await waitFor(() => screen.getByDisplayValue('Ana'));
+
+    const diasInput = screen.getByPlaceholderText('Dias de teste');
+    expect(diasInput).toBeInTheDocument();
+
+    fireEvent.change(diasInput, { target: { value: '150' } });
+    expect(diasInput.value).toBe('99');
   });
 
   test('Trata reset de senha sem token e com token', async () => {
@@ -159,7 +208,7 @@ describe('EditarCliente Component', () => {
     });
   });
 
-  test('Trata falha de resposta ok no PUT cliente e no PUT passeio', async () => {
+  test('Trata erro sem mensagem e exceção de conexão ao salvar cliente', async () => {
     fetch.mockResolvedValueOnce({
       json: jest.fn().mockResolvedValue(mockClienteData)
     });
@@ -171,32 +220,25 @@ describe('EditarCliente Component', () => {
 
     await waitFor(() => screen.getByDisplayValue('Ana'));
 
-    // 1. Falha no PUT cliente
+    // 1. Resposta ok false sem mensagem
     fetch.mockResolvedValueOnce({
       ok: false,
-      json: jest.fn().mockResolvedValue({ message: 'Conflito de módulo' })
+      json: jest.fn().mockResolvedValue({})
     });
 
     fireEvent.click(screen.getByRole('button', { name: /salvar/i }));
 
     await waitFor(() => {
-      expect(window.alert).toHaveBeenCalledWith('Erro: Conflito de módulo');
+      expect(window.alert).toHaveBeenCalledWith('Erro ao atualizar cliente: Erro desconhecido');
     });
 
-    // 2. Falha no PUT passeio
-    fetch.mockResolvedValueOnce({
-      ok: true,
-      json: jest.fn().mockResolvedValue({ success: true })
-    });
-    fetch.mockResolvedValueOnce({
-      ok: false,
-      json: jest.fn().mockResolvedValue({ message: 'Erro no passeio' })
-    });
+    // 2. Exceção ao salvar
+    fetch.mockRejectedValueOnce(new Error('Erro no servidor ao salvar'));
 
     fireEvent.click(screen.getByRole('button', { name: /salvar/i }));
 
     await waitFor(() => {
-      expect(window.alert).toHaveBeenCalledWith('Erro ao atualizar horário de passeio: Erro no passeio');
+      expect(window.alert).toHaveBeenCalledWith('Erro ao conectar com o servidor. Tente novamente mais tarde.');
     });
   });
 
