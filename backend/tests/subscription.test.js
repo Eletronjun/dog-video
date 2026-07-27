@@ -1,9 +1,11 @@
 const request = require('supertest');
 const jwt = require('jsonwebtoken');
 const { app, pool } = require('../app');
+const webPush = require('web-push');
 
 jest.mock('web-push', () => ({
-  sendNotification: jest.fn().mockResolvedValue({}),
+  setVapidDetails: jest.fn(),
+  sendNotification: jest.fn().mockImplementation(() => Promise.resolve({})),
 }));
 
 let createdNotificationId;
@@ -24,7 +26,6 @@ beforeAll(async () => {
   userToken = jwt.sign({ id: createdClientId, email: 'subuser@mail.com', userType: 'user' }, secret, { expiresIn: '1h' });
   adminToken = jwt.sign({ id: 1, email: 'admin@mail.com', userType: 'admin' }, secret, { expiresIn: '1h' });
 
-  // Insert a subscription for the client
   await pool.query(`
     INSERT INTO subscriptions (id_cliente, endpoint, p256dh, auth)
     VALUES ($1, 'https://fcm.googleapis.com/fcm/send/test-endpoint', 'test-p256dh', 'test-auth')
@@ -58,6 +59,18 @@ describe('Subscription & Notificacoes Controller Tests', () => {
     expect(res.body.message).toBe('ID do cliente não fornecido');
   });
 
+  it('POST /subscribe with invalid data should return 500', async () => {
+    const res = await request(app)
+      .post('/subscribe')
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({
+        subscription: { endpoint: '', keys: { p256dh: '', auth: '' } }
+      });
+
+    expect(res.statusCode).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
   it('POST /subscribe with valid user token should save subscription', async () => {
     const res = await request(app)
       .post('/subscribe')
@@ -73,9 +86,9 @@ describe('Subscription & Notificacoes Controller Tests', () => {
     expect(res.body.success).toBe(true);
   });
 
-  it('POST /criar-notificacao should create a notification', async () => {
+  it('POST /notificacoes should create a notification', async () => {
     const res = await request(app)
-      .post('/criar-notificacao')
+      .post('/notificacoes')
       .send({
         tipo: 'Alerta Teste',
         mensagem: 'Mensagem de teste de Notificação',
@@ -91,20 +104,58 @@ describe('Subscription & Notificacoes Controller Tests', () => {
     }
   });
 
-  it('POST /enviar-notificacao with non-existent notification ID should return 404', async () => {
+  it('POST /notificacoes with DB error should return 500', async () => {
+    const origQuery = pool.query;
+    jest.spyOn(pool, 'query').mockImplementation((queryText, params, callback) => {
+      if (typeof queryText === 'string' && queryText.includes('INSERT INTO notificacoes')) {
+        if (typeof callback === 'function') return callback(new Error('DB Error'));
+      }
+      return origQuery.call(pool, queryText, params, callback);
+    });
+
     const res = await request(app)
-      .post('/enviar-notificacao')
+      .post('/notificacoes')
+      .send({ tipo: 'Teste', mensagem: 'Erro' });
+
+    expect(res.statusCode).toBe(500);
+    expect(res.body.message).toBe('Erro ao salvar notificação');
+    pool.query.mockRestore();
+  });
+
+  it('POST /send-notification with non-existent notification ID should return 404', async () => {
+    const res = await request(app)
+      .post('/send-notification')
       .send({ id_notificacao: 999999 });
 
     expect(res.statusCode).toBe(404);
     expect(res.body.message).toBe('Notificação não encontrada');
   });
 
-  it('POST /enviar-notificacao with valid notification ID should trigger push delivery', async () => {
-    expect(createdNotificationId).toBeDefined();
+  it('POST /send-notification with DB error on subscriptions should return 500', async () => {
+    const origQuery = pool.query;
+    jest.spyOn(pool, 'query').mockImplementation((queryText, params, callback) => {
+      if (typeof queryText === 'string' && queryText.includes('SELECT * FROM subscriptions')) {
+        if (typeof callback === 'function') return callback(new Error('Sub DB Error'));
+      }
+      return origQuery.call(pool, queryText, params, callback);
+    });
 
     const res = await request(app)
-      .post('/enviar-notificacao')
+      .post('/send-notification')
+      .send({ id_notificacao: createdNotificationId });
+
+    expect(res.statusCode).toBe(500);
+    expect(res.body.message).toBe('Erro ao buscar subscriptions');
+    pool.query.mockRestore();
+  });
+
+  it('POST /send-notification with valid notification ID should trigger push delivery and catch push error', async () => {
+    expect(createdNotificationId).toBeDefined();
+
+    webPush.sendNotification.mockRejectedValueOnce(new Error('Push error simulation'));
+
+    const res = await request(app)
+      .post('/send-notification')
       .send({ id_notificacao: createdNotificationId });
 
     expect(res.statusCode).toBe(200);
